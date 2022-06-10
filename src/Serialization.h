@@ -1,13 +1,14 @@
 #pragma once
 
 #include "AVManager.h"
+#include "PoiseAV.h"
 
 namespace Serialization
 {
 	enum : std::uint32_t
 	{
 		kSerializationVersion = 1,
-		kActorValues = 'AV'
+		kUniqueID = 'pAV'
 	};
 
 	inline void SaveCallback(SKSE::SerializationInterface* a_intfc)
@@ -16,7 +17,7 @@ namespace Serialization
 
 		avManager->mtx.lock();
 
-		if (!avManager->SerializeSave(a_intfc, Serialization::kActorValues, Serialization::kSerializationVersion)) {
+		if (!avManager->SerializeSave(a_intfc, Serialization::kUniqueID, Serialization::kSerializationVersion)) {
 			logger::error("Failed to save actor values!\n");
 		}
 
@@ -39,7 +40,7 @@ namespace Serialization
 			}
 
 			switch (type) {
-			case Serialization::kActorValues:
+			case Serialization::kUniqueID:
 				if (!avManager->DeserializeLoad(a_intfc))
 					logger::info("Failed to load actor values!\n");
 				else
@@ -55,6 +56,27 @@ namespace Serialization
 
 	inline bool Save(SKSE::SerializationInterface* a_intfc, json& root)
 	{
+		json emptyAV = { 0.0f, 0.0f, 0.0f };
+		json temporaryJson = root;
+		for (auto& el : root.items()) {
+			std::string sformID = el.key();
+			try {
+				if (auto form = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))) {
+					if (auto actor = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))->As<RE::Actor>()) {
+						if (actor->currentProcess && actor->currentProcess->InHighProcess())
+							continue;
+					}
+				}
+				temporaryJson.erase(sformID);
+			} catch (std::invalid_argument const&) {
+				logger::error("Bad input: std::invalid_argument thrown");
+			} catch (std::out_of_range const&) {
+				logger::error("Integer overflow: std::out_of_range thrown");
+			}
+		}
+
+		root = temporaryJson;
+
 		std::string elem = root.dump();
 		std::size_t size = elem.length();
 
@@ -87,7 +109,26 @@ namespace Serialization
 			return false;
 		} else {
 			logger::info(FMT_STRING("Deserialized {}"), elem);
-			parsedJson = json::parse(elem);
+
+			json temporaryJson = json::parse(elem);
+
+			for (auto& el : temporaryJson.items()) {
+				std::string oldFormIDs = el.key();
+				try {
+					RE::FormID oldFormID = static_cast<RE::FormID>(std::stoul(oldFormIDs));
+					RE::FormID newFormID = 0;
+					if (oldFormID != 0 && a_intfc->ResolveFormID(oldFormID, newFormID)) {
+						std::string newFormIDs = std::to_string(newFormID);
+						parsedJson[newFormIDs] = temporaryJson[oldFormIDs];
+					} else {
+						logger::info(FMT_STRING("Discarded removed form {:X}"), oldFormID);
+					}
+				} catch (std::invalid_argument const&) {
+					logger::error("Bad input: std::invalid_argument thrown");
+				} catch (std::out_of_range const&) {
+					logger::error("Integer overflow: std::out_of_range thrown");
+				}
+			}
 		}
 
 		return true;
@@ -96,7 +137,9 @@ namespace Serialization
 	inline void RevertCallback(SKSE::SerializationInterface*)
 	{
 		auto avManager = AVManager::GetSingleton();
+		avManager->mtx.lock();
 		avManager->Revert();
+		avManager->mtx.unlock();
 	}
 
 	void SaveCallback(SKSE::SerializationInterface* a_intfc);

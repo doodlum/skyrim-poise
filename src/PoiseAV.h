@@ -5,8 +5,8 @@
 #include "PCH.h"
 
 // variables
-static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();          // 2F6B948, 30064C8
-static float* g_deltaTimeRealTime = (float*)RELOCATION_ID(523661, 410200).address();  // 2F6B94C, 30064CC
+//static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();          // 2F6B948, 30064C8
+//static float* g_deltaTimeRealTime = (float*)RELOCATION_ID(523661, 410200).address();  // 2F6B94C, 30064CC
 
 class PoiseAV : public AVInterface
 {
@@ -30,38 +30,34 @@ public:
 		return &avInterface;
 	}
 
-	static void TryStagger(RE::Actor* target, float staggerMult, RE::Actor* aggressor)
+	static void TryStagger(RE::Actor* target, [[maybe_unused]] float staggerMult, [[maybe_unused]] RE::Actor* aggressor)
 	{
 		using func_t = decltype(&TryStagger);
-		REL::Relocation<func_t> func{ REL::RelocationID(36700, 36700) };
-		return func(target, -staggerMult, aggressor);
+		REL::Relocation<func_t> func{ REL::RelocationID(36700, 37710) };
+		func(target, -staggerMult, aggressor);
 	}
 
-	
-	static void TryPushActorAway(RE::Actor* target, [[maybe_unused]] float staggerMult, RE::Actor* aggressor)
-	{
-		if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
-			if (auto script = scriptFactory->Create()) {
-				script->SetCommand(fmt::format(FMT_STRING("PushActorAway {:X} 0"), target->GetFormID()));
-				script->CompileAndRun(aggressor);
-			}
-		}
-	}
+	//static void TryPushActorAway(RE::Actor* target, [[maybe_unused]] float staggerMult, RE::Actor* aggressor)
+	//{
+	//	if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
+	//		if (auto script = scriptFactory->Create()) {
+	//			script->SetCommand(fmt::format(FMT_STRING("PushActorAway {:X} 0"), target->GetFormID()));
+	//			script->CompileAndRun(aggressor);
+	//		}
+	//	}
+	//}
 
-	static void TryApplyHavokImpulse(RE::Actor* target, float afX, float afY, float afZ, float afMagnitude)
-	{
-		if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
-			if (auto script = scriptFactory->Create()) {
-				script->SetCommand(fmt::format(FMT_STRING("ApplyHavokImpulse {} {} {} {}"), afX, afY, afZ, afMagnitude));
-				script->CompileAndRun(target);
-			}
-		}
-	}
+	//static void TryApplyHavokImpulse(RE::Actor* target, float afX, float afY, float afZ, float afMagnitude)
+	//{
+	//	if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
+	//		if (auto script = scriptFactory->Create()) {
+	//			script->SetCommand(fmt::format(FMT_STRING("ApplyHavokImpulse {} {} {} {}"), afX, afY, afZ, afMagnitude));
+	//			script->CompileAndRun(target);
+	//		}
+	//	}
+	//}
 
 protected:
-
-
-
 	struct Hooks
 	{
 		struct PlayerCharacter_Update

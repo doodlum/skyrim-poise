@@ -2,73 +2,156 @@
 
 #include <SimpleIni.h>
 
+namespace RE
+{
+	enum class DIFFICULTY : std::int32_t
+	{
+		kNovice = 0,
+		kApprentice = 1,
+		kAdept = 2,
+		kExpert = 3,
+		kMaster = 4,
+		kLegendary = 5
+	};
+}
+
 class Settings
 {
 public:
-
-
-
 	[[nodiscard]] static Settings* GetSingleton()
 	{
 		static Settings singleton;
 		return &singleton;
 	}
 
-
 	void LoadSettings()
 	{
-		constexpr auto path = L"Data/SKSE/Plugins/PoiseAV.ini";
-
-		CSimpleIniA ini;
-		ini.SetUnicode();
-		ini.LoadFile(path);
-
-		GameSetting.Load(ini);
+		GameSetting.Load(L"Data/SKSE/Plugins/ChocolatePoise.ini");
+		EffectSetting.Load(L"Data/SKSE/Plugins/ChocolatePoise.json");
 	}
 
 	struct
 	{
-		void Load(CSimpleIniA& a_ini)
-		{
-			static const char* section = "Multipliers";
+		float fDiffMultHPByPCVE;
+		float fDiffMultHPByPCE;
+		float fDiffMultHPByPCN;
+		float fDiffMultHPByPCH;
+		float fDiffMultHPByPCVH;
+		float fDiffMultHPByPCL;
+		float fDiffMultHPToPCVE;
+		float fDiffMultHPToPCE;
+		float fDiffMultHPToPCN;
+		float fDiffMultHPToPCH;
+		float fDiffMultHPToPCVH;
+		float fDiffMultHPToPCL;
 
-			fPoiseBase = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseBase", 100.0f));
-			fPoiseMassFactor = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseMassFactor", 0.5f));
-			fPoisePlayerMassMult = static_cast<float>(a_ini.GetDoubleValue(section, "fPoisePlayerMassMult", 2.5f));
+		float fPoiseHealthAVMult;
+		float fPoiseHealthArmorMult;
 
-			fPoiseArmorFactor = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseArmorFactor", 1.0f));
-			
-			fPoiseRegenDelayMax = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseRegenDelayMax", 3.0f));
-			fPoiseRegenRate = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseRegenRate", 0.1f));
-
-			fPoiseDamageAmmoBase = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseDamageAmmoBase", 10.0f));
-			fPoiseDamageBashBase = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseDamageBashBase", 1.5f));
-
-			fPoiseDamageHitMult = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseDamageHitMult", 1.0f));
-			fPoiseDamageSpellMult = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseDamageSpellMult", 50.0f));
-			fPoiseDamageStaggerMult = static_cast<float>(a_ini.GetDoubleValue(section, "fPoiseDamageStaggerMult", 10.0f));
-
-
-		}
-
-		float fPoiseBase;
-		float fPoiseMassFactor;
-		float fPoisePlayerMassMult;
-
-		float fPoiseArmorFactor;
-
-		float fPoiseRegenDelayMax;
 		float fPoiseRegenRate;
 
-		float fPoiseDamageAmmoBase;
-		float fPoiseDamageBashBase;
-
-		float fPoiseDamageHitMult;
-		float fPoiseDamageSpellMult;
+		float fPoiseDamageBowMult;
+		float fPoiseDamageArrowMult;
+		float fPoiseDamageMeleeMult;
+		float fPoiseDamageBashMult;
 		float fPoiseDamageStaggerMult;
+		float fPoiseDamageUnarmedMult;
+
+		float bPoiseAllowStaggerLock;
+
+		void Load(const wchar_t* a_path)
+		{
+			auto gameSettingCollection = RE::GameSettingCollection::GetSingleton();
+
+			fDiffMultHPByPCVE = gameSettingCollection->GetSetting("fDiffMultHPByPCVE")->GetFloat();
+			fDiffMultHPByPCE = gameSettingCollection->GetSetting("fDiffMultHPByPCE")->GetFloat();
+			fDiffMultHPByPCN = gameSettingCollection->GetSetting("fDiffMultHPByPCN")->GetFloat();
+			fDiffMultHPByPCH = gameSettingCollection->GetSetting("fDiffMultHPByPCH")->GetFloat();
+			fDiffMultHPByPCVH = gameSettingCollection->GetSetting("fDiffMultHPByPCVH")->GetFloat();
+			fDiffMultHPByPCL = gameSettingCollection->GetSetting("fDiffMultHPByPCL")->GetFloat();
+			fDiffMultHPToPCVE = gameSettingCollection->GetSetting("fDiffMultHPToPCVE")->GetFloat();
+			fDiffMultHPToPCE = gameSettingCollection->GetSetting("fDiffMultHPToPCE")->GetFloat();
+			fDiffMultHPToPCN = gameSettingCollection->GetSetting("fDiffMultHPToPCN")->GetFloat();
+			fDiffMultHPToPCH = gameSettingCollection->GetSetting("fDiffMultHPToPCH")->GetFloat();
+			fDiffMultHPToPCVH = gameSettingCollection->GetSetting("fDiffMultHPToPCVH")->GetFloat();
+			fDiffMultHPToPCL = gameSettingCollection->GetSetting("fDiffMultHPToPCL")->GetFloat();
+
+			CSimpleIniA ini;
+			ini.SetUnicode();
+			ini.LoadFile(a_path);
+
+			static const char* section = "Multipliers";
+
+			fPoiseHealthAVMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthAVMult", 0));
+			fPoiseHealthArmorMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthArmorMult", 0));
+
+			fPoiseRegenRate = static_cast<float>(ini.GetDoubleValue(section, "fPoiseRegenRate", 0));
+
+			fPoiseDamageBowMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBowMult", 0));
+			fPoiseDamageArrowMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageArrowMult", 0));
+			fPoiseDamageMeleeMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageMeleeMult", 0));
+			fPoiseDamageBashMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBashMult", 0));
+			fPoiseDamageUnarmedMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageUnarmedMult", 0));
+
+			bPoiseAllowStaggerLock = ini.GetBoolValue(section, "bPoiseAllowStaggerLock", false);
+		}
+
+		float GetDamageMultiplier(RE::Actor* a_aggressor, RE::Actor* a_target)
+		{
+			if (a_aggressor && (a_aggressor->IsPlayerRef() || a_aggressor->IsPlayerTeammate())) {
+				switch (static_cast<RE::DIFFICULTY>(RE::PlayerCharacter::GetSingleton()->GetGameStatsData().difficulty)) {
+				case RE::DIFFICULTY::kNovice:
+					return fDiffMultHPByPCVE;
+				case RE::DIFFICULTY::kApprentice:
+					return fDiffMultHPByPCE;
+				case RE::DIFFICULTY::kAdept:
+					return fDiffMultHPByPCN;
+				case RE::DIFFICULTY::kExpert:
+					return fDiffMultHPByPCH;
+				case RE::DIFFICULTY::kMaster:
+					return fDiffMultHPByPCVH;
+				case RE::DIFFICULTY::kLegendary:
+					return fDiffMultHPByPCL;
+				}
+			} else if (a_target && (a_target->IsPlayerRef() || a_target->IsPlayerTeammate())) {
+				switch (static_cast<RE::DIFFICULTY>(RE::PlayerCharacter::GetSingleton()->GetGameStatsData().difficulty)) {
+				case RE::DIFFICULTY::kNovice:
+					return fDiffMultHPToPCVE;
+				case RE::DIFFICULTY::kApprentice:
+					return fDiffMultHPToPCE;
+				case RE::DIFFICULTY::kAdept:
+					return fDiffMultHPToPCN;
+				case RE::DIFFICULTY::kExpert:
+					return fDiffMultHPToPCH;
+				case RE::DIFFICULTY::kMaster:
+					return fDiffMultHPToPCVH;
+				case RE::DIFFICULTY::kLegendary:
+					return fDiffMultHPToPCL;
+				}
+			}
+			return 1.0f;
+		}
 
 	} GameSetting;
 
+	struct
+	{
+		void Load(const wchar_t* a_path)
+		{
+			std::ifstream i(a_path);
+			i >> root;
+
+			auto av = magic_enum::enum_cast<RE::ActorValue>('k' + (std::string)root["PoiseHealthBaseAV"]);
+			if (av.has_value())
+				PoiseHealthBaseAV = av.value();
+			else
+				PoiseHealthBaseAV = RE::ActorValue::kNone;
+		}
+
+		RE::ActorValue PoiseHealthBaseAV;
+		json root;
+
+	} EffectSetting;
 
 private:
 	Settings() = default;

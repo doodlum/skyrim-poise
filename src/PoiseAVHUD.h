@@ -12,6 +12,8 @@ public:
 		return &manager;
 	}
 
+	float defaultColor;
+
     static float GetMaxSpecial(RE::Actor* a_actor);
     static float GetCurrentSpecial(RE::Actor* a_actor);
 

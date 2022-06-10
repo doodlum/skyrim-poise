@@ -1,7 +1,7 @@
 
 #include "AVManager.h"
-#include "Serialization.h"
 #include "Hooks.h"
+#include "Serialization.h"
 
 #include "PoiseAV.h"
 #include "PoiseAVHUD.h"
@@ -47,10 +47,11 @@ void Init()
 	messaging->RegisterListener("SKSE", MessageHandler);
 
 	auto serialization = SKSE::GetSerializationInterface();
-	serialization->SetUniqueID(Serialization::kActorValues);
+	serialization->SetUniqueID(Serialization::kUniqueID);
 	serialization->SetSaveCallback(Serialization::SaveCallback);
 	serialization->SetLoadCallback(Serialization::LoadCallback);
 	serialization->SetRevertCallback(Serialization::RevertCallback);
+
 	Hooks::Install();
 }
 
@@ -65,7 +66,7 @@ void InitializeLog()
 	}
 
 	*path /= fmt::format("{}.log"sv, Plugin::NAME);
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+	auto       sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 #endif
 
 #ifndef NDEBUG
@@ -100,17 +101,17 @@ EXTERN_C [[maybe_unused]] __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(con
 }
 
 EXTERN_C [[maybe_unused]] __declspec(dllexport) constinit auto SKSEPlugin_Version = []() noexcept {
-    SKSE::PluginVersionData v;
-    v.PluginName("PluginName");
-    v.PluginVersion({ 1, 0, 0, 0 });
-    v.UsesAddressLibrary(true);
-    return v;
+	SKSE::PluginVersionData v;
+	v.PluginName("PluginName");
+	v.PluginVersion({ 1, 0, 0, 0 });
+	v.UsesAddressLibrary(true);
+	return v;
 }();
 
 EXTERN_C [[maybe_unused]] __declspec(dllexport) bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, SKSE::PluginInfo* pluginInfo)
 {
-    pluginInfo->name = SKSEPlugin_Version.pluginName;
+	pluginInfo->name = SKSEPlugin_Version.pluginName;
 	pluginInfo->infoVersion = SKSE::PluginInfo::kVersion;
-    pluginInfo->version = SKSEPlugin_Version.pluginVersion;
-    return true;
+	pluginInfo->version = SKSEPlugin_Version.pluginVersion;
+	return true;
 }

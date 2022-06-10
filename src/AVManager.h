@@ -3,9 +3,10 @@
 #include "AVInterface.h"
 
 #include <nlohmann/json.hpp>
+#include <shared_mutex>
 using json = nlohmann::json;
 
-class AVManager
+class AVManager : public RE::BSTEventSink<RE::TESFormDeleteEvent>
 {
 public:
 	static AVManager* GetSingleton()
@@ -18,6 +19,7 @@ public:
 	bool SerializeSave(SKSE::SerializationInterface* a_intfc, uint32_t a_type, uint32_t a_version);
 	bool DeserializeLoad(SKSE::SerializationInterface* a_intfc);
 	void Revert();
+	auto ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) -> RE::BSEventNotifyControl;
 
 	bool RegisterActorValue(std::string avName, AVInterface* avInterface);
 
@@ -33,7 +35,7 @@ public:
 
 	json                                          avStorage;
 	std::unordered_map<std::string, AVInterface*> registeredInterfaces;
-	std::mutex                                    mtx;
+	std::shared_mutex                                    mtx;
 
 private:
 

@@ -1,8 +1,29 @@
 #include "HitEventHandler.h"
 #include "AVManager.h"
-#include "Settings.h"
 #include "PoiseAV.h"
 #include "PoiseAVHUD.h"
+#include "Settings.h"
+
+void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, float a_poiseDamage)
+{
+	auto avManager = AVManager::GetSingleton();
+	avManager->mtx.lock();
+
+	if (a_poiseDamage > 0 && a_target != a_aggressor)
+		a_poiseDamage *= Settings::GetSingleton()->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
+
+	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
+	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
+	if (poise == 0.0f) {
+		auto poiseDamagePercent = a_poiseDamage / avManager->GetActorValueMax(PoiseAV::g_avName, a_target);
+		// Stagger duration is relative to the power of the attacking weapon
+		logger::debug(FMT_STRING("Poise Damage Percent {}"), poiseDamagePercent);
+		PoiseAV::TryStagger(a_target, poiseDamagePercent, a_aggressor);
+	}
+	logger::debug(FMT_STRING("Target {} Poise Damage {} Poise Health {} / {}"), a_target->GetName(), a_poiseDamage, avManager->GetActorValue(PoiseAV::g_avName, a_target), avManager->GetActorValueMax(PoiseAV::g_avName, a_target));
+
+	avManager->mtx.unlock();
+}
 
 float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, [[maybe_unused]] RE::HitData& hitData)
 {
@@ -11,76 +32,50 @@ float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[
 	auto sourceRef = hitData.sourceRef.get().get();
 	if (sourceRef) {
 		if (sourceRef->AsProjectile() && sourceRef->AsProjectile()->ammoSource && sourceRef->AsProjectile()->weaponSource) {
-			stagger += sourceRef->AsProjectile()->weaponSource->GetWeight();
-			stagger *= (1 + aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus));
+			stagger += sourceRef->AsProjectile()->weaponSource->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageBowMult;
+			stagger += sourceRef->AsProjectile()->ammoSource->data.damage * Settings::GetSingleton()->GameSetting.fPoiseDamageArrowMult;
+			stagger *= 1.0f + aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus);
+			logger::debug(FMT_STRING("Bow stagger bonus {}"), aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus));
 		} else
-			logger::info("idk");
+			logger::debug("Missed attack with sourceRef");
+	} else if (hitData.skill == RE::ActorValue::kUnarmedDamage) {
+		stagger += aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * Settings::GetSingleton()->GameSetting.fPoiseDamageUnarmedMult;
 	} else if (hitData.weapon) {
-		stagger += hitData.weapon->GetWeight();
-	} else if (hitData.skill == RE::ActorValue::kBlock) {
-		stagger += aggressor->GetEquippedObject(true)->As<RE::TESObject>()->GetWeight();
+		stagger += hitData.weapon->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageMeleeMult;
+		logger::debug(FMT_STRING("Weapon Weight {}"), hitData.weapon->GetWeight());
+	} else if (hitData.skill == RE::ActorValue::kBlock && aggressor->GetEquippedObject(true)) {
+		stagger += aggressor->GetEquippedObject(true)->As<RE::TESObject>()->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageBashMult;
+		logger::debug(FMT_STRING("Object Weight {}"), stagger);
 	} else
-		logger::info("idk");
+		logger::debug("Missed attack");
 
-	if (hitData.attackData) 
+	if (hitData.attackData) {
 		stagger *= hitData.attackData.get()->data.damageMult;
+		logger::debug(FMT_STRING("Damage Mult {}"), hitData.attackData.get()->data.damageMult);
+	}
 
-	float multiplier = 1.0f - hitData.percentBlocked;
+	float baseMult = 1.0f - hitData.percentBlocked;
+	logger::debug(FMT_STRING("Percent Blocked {}"), hitData.percentBlocked);
 
-	ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &multiplier);
-	ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &multiplier);
+	ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
+	ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
 
-	return stagger * multiplier;
+	return stagger * baseMult;
 }
 
-//static bool IsCasting(RE::Actor* a_actor)
-//{
-//	return std::any_of(
-//		a_actor->magicCasters,
-//		a_actor->magicCasters + RE::Actor::SlotTypes::kTotal,
-//		[a_actor](auto cast) {
-//			return cast && a_actor->IsCasting(cast->currentSpell);
-//		});
-//}
-
-//static bool ActorDoingSomething(RE::Actor* a_actor) 
-//{
-//	return a_actor->GetAttackingWeapon() || a_actor->IsBlocking() || a_actor->IsRunning() || IsCasting(a_actor) || a_actor;
-//}
-
-static void DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, float a_poiseDamage)
+void HitEventHandler::PreProcessVanillaStaggerAttempt([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, float& stagger)
 {
-	if (a_poiseDamage <= 0.0f)
-		return;
-	auto avManager = AVManager::GetSingleton();
-	avManager->mtx.lock();
-	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
-	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
-	if (poise <= 0.50f) {
-		// Stagger duration is relative to the power of the attacking weapon
-		auto poiseDamagePercent = (a_poiseDamage / avManager->GetActorValueMax(PoiseAV::g_avName, a_target)) / 100;
-		PoiseAV::TryStagger(a_target, 0.5f + poiseDamagePercent, a_aggressor);
-	} /*else if (a_target->IsPlayerRef() || !ActorDoingSomething(a_target)) {
-		auto poiseDamagePercent = (a_poiseDamage / avManager->GetActorValueMax(PoiseAV::g_avName, a_target)) / 100;
-		PoiseAV::TryStagger(a_target, min(poiseDamagePercent / 2, 0.5f), a_aggressor);
-	}*/
-	avManager->mtx.unlock();
-}
-
-void HitEventHandler::PreProcessVanillaStaggerAttempt(RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, float& stagger)
-{
-	DamageAndCheckPoise(target, aggressor, stagger * Settings::GetSingleton()->GameSetting.fPoiseDamageStaggerMult);
+	if (!target->actorState2.staggered || Settings::GetSingleton()->GameSetting.bPoiseAllowStaggerLock)
+		DamageAndCheckPoise(target, aggressor, stagger * Settings::GetSingleton()->GameSetting.fPoiseDamageStaggerMult);
 	stagger = 0.0f;
 }
 
 void HitEventHandler::PreProcessHitEvent(RE::Actor* target, [[maybe_unused]] RE::HitData& hitData)
 {
-	if (target == hitData.aggressor.get().get())
-		return;
-
-	auto poiseDamage = RecalculateStagger(target, hitData.aggressor.get().get(), hitData);
-
-	DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage * Settings::GetSingleton()->GameSetting.fPoiseDamageHitMult);
+	if (!target->actorState2.staggered || Settings::GetSingleton()->GameSetting.bPoiseAllowStaggerLock) {
+		auto poiseDamage = RecalculateStagger(target, hitData.aggressor.get().get(), hitData);
+		DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage);
+	}
 
 	hitData.stagger = static_cast<uint32_t>(0.00);
 }
