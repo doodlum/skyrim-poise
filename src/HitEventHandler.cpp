@@ -6,11 +6,12 @@
 
 void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, float a_poiseDamage)
 {
+	auto settings = Settings::GetSingleton();
 	auto avManager = AVManager::GetSingleton();
 	avManager->mtx.lock();
 
 	if (a_poiseDamage > 0 && a_target != a_aggressor)
-		a_poiseDamage *= Settings::GetSingleton()->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
+		a_poiseDamage *= settings->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
 
 	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
 	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
@@ -27,27 +28,28 @@ void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggr
 
 float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, [[maybe_unused]] RE::HitData& hitData)
 {
+	auto  settings = Settings::GetSingleton();
 	float stagger = 0.0;
 
 	auto sourceRef = hitData.sourceRef.get().get();
 	if (sourceRef) {
 		if (sourceRef->AsProjectile() && sourceRef->AsProjectile()->ammoSource && sourceRef->AsProjectile()->weaponSource) {
-			stagger += sourceRef->AsProjectile()->weaponSource->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageBowMult;
-			stagger += sourceRef->AsProjectile()->ammoSource->data.damage * Settings::GetSingleton()->GameSetting.fPoiseDamageArrowMult;
+			stagger = sourceRef->AsProjectile()->weaponSource->GetWeight() * settings->GameSetting.fPoiseDamageBowMult;
+			stagger += sourceRef->AsProjectile()->ammoSource->data.damage * settings->GameSetting.fPoiseDamageArrowMult;
 			stagger *= 1.0f + aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus);
 			logger::debug(FMT_STRING("Bow stagger bonus {}"), aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus));
 		} else
 			logger::debug("Missed attack with sourceRef");
 	} else if (hitData.skill == RE::ActorValue::kUnarmedDamage) {
-		stagger += aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * Settings::GetSingleton()->GameSetting.fPoiseDamageUnarmedMult;
+		stagger = aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * settings->GameSetting.fPoiseDamageUnarmedMult;
 	} else if (hitData.weapon) {
-		stagger += hitData.weapon->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageMeleeMult;
+		stagger = hitData.weapon->GetWeight() * settings->GameSetting.fPoiseDamageMeleeMult;
 		logger::debug(FMT_STRING("Weapon Weight {}"), hitData.weapon->GetWeight());
 	} else if (hitData.skill == RE::ActorValue::kBlock && aggressor->GetEquippedObject(true)) {
-		stagger += aggressor->GetEquippedObject(true)->As<RE::TESObject>()->GetWeight() * Settings::GetSingleton()->GameSetting.fPoiseDamageBashMult;
+		stagger = aggressor->GetEquippedObject(true)->As<RE::TESObject>()->GetWeight() * settings->GameSetting.fPoiseDamageBashMult;
 		logger::debug(FMT_STRING("Object Weight {}"), stagger);
 	} else
-		logger::debug("Missed attack");
+		logger::debug("Unknown attack");
 
 	if (hitData.attackData) {
 		stagger *= hitData.attackData.get()->data.damageMult;
@@ -63,19 +65,21 @@ float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[
 	return stagger * baseMult;
 }
 
+// unused
 void HitEventHandler::PreProcessVanillaStaggerAttempt([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, float& stagger)
 {
-	if (!target->actorState2.staggered || Settings::GetSingleton()->GameSetting.bPoiseAllowStaggerLock)
-		DamageAndCheckPoise(target, aggressor, stagger * Settings::GetSingleton()->GameSetting.fPoiseDamageStaggerMult);
+	auto settings = Settings::GetSingleton();
+	if (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock)
+		DamageAndCheckPoise(target, aggressor, stagger * settings->GameSetting.fPoiseDamageStaggerMult);
 	stagger = 0.0f;
 }
 
 void HitEventHandler::PreProcessHitEvent(RE::Actor* target, [[maybe_unused]] RE::HitData& hitData)
 {
-	if (!target->actorState2.staggered || Settings::GetSingleton()->GameSetting.bPoiseAllowStaggerLock) {
+	auto settings = Settings::GetSingleton();
+	if (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock) {
 		auto poiseDamage = RecalculateStagger(target, hitData.aggressor.get().get(), hitData);
 		DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage);
 	}
-
 	hitData.stagger = static_cast<uint32_t>(0.00);
 }

@@ -57,7 +57,8 @@ public:
 		float fPoiseDamageStaggerMult;
 		float fPoiseDamageUnarmedMult;
 
-		float bPoiseAllowStaggerLock;
+		bool bPoiseAllowStaggerLock;
+		bool bPoiseUseSpecialBar;
 
 		void Load(const wchar_t* a_path)
 		{
@@ -94,6 +95,7 @@ public:
 			fPoiseDamageUnarmedMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageUnarmedMult", 0));
 
 			bPoiseAllowStaggerLock = ini.GetBoolValue(section, "bPoiseAllowStaggerLock", false);
+			bPoiseUseSpecialBar = ini.GetBoolValue(section, "bPoiseUseSpecialBar", false);
 		}
 
 		float GetDamageMultiplier(RE::Actor* a_aggressor, RE::Actor* a_target)

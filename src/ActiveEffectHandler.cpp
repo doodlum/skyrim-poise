@@ -60,38 +60,3 @@ void ActiveEffectHandler::DualActiveEffectUpdate(RE::ActiveEffect* a_activeEffec
 		HitEventHandler::DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
 	}
 }
-
-float ActiveEffectHandler::CalculateStaggerEffectPoiseDamage([[maybe_unused]] RE::ActiveEffect* a_activeEffect)
-{
-	float poiseDamage = 0.0f;
-
-	auto settings = Settings::GetSingleton();
-
-	std::string avString = "Stagger";
-
-	std::string sType = a_activeEffect->effect->baseEffect->IsDetrimental() ? "Damage" : "Recovery";
-
-	if (settings->EffectSetting.root["Multipliers"][sType][avString] != nullptr)
-		poiseDamage = static_cast<float>(settings->EffectSetting.root["Multipliers"][sType][avString]);
-	else
-		logger::info(FMT_STRING("Could not find {} av"), avString);
-
-	return poiseDamage;
-}
-
-void ActiveEffectHandler::StaggerUpdate(RE::ActiveEffect* a_activeEffect, float a_delta)
-{
-	if (a_activeEffect->hitEffectController.target && a_activeEffect->target->MagicTargetIsActor() && a_activeEffect->conditionStatus.get() != RE::ActiveEffect::ConditionStatus::kFalse) {
-		float poiseDamage = CalculateStaggerEffectPoiseDamage(a_activeEffect);
-		poiseDamage *= -1 * a_activeEffect->magnitude;
-
-		auto target = a_activeEffect->hitEffectController.target.get().get()->As<RE::Actor>();
-		auto aggressor = a_activeEffect->caster.get().get();
-
-		float baseMult = 1.0f;
-		HitEventHandler::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
-		HitEventHandler::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
-
-		HitEventHandler::DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
-	}
-}

@@ -18,9 +18,6 @@ public:
 	void  ActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta);
 	void  DualActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta);
 
-	float CalculateStaggerEffectPoiseDamage(RE::ActiveEffect* a_activeEffect);
-	void  StaggerUpdate(RE::ActiveEffect* a_activeEffect, float a_delta);
-
 protected:
 	struct Hooks
 	{
@@ -44,21 +41,11 @@ protected:
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
-		struct StaggerEffect_Update
-		{
-			static void thunk(RE::ActiveEffect* a_activeEffect, float a_delta)
-			{
-				//func(a_activeEffect, a_delta);
-				GetSingleton()->StaggerUpdate(a_activeEffect, a_delta);
-			}
-			static inline REL::Relocation<decltype(thunk)> func;
-		};
 
 		static void Install()
 		{
 			stl::write_vfunc<0x4, ActiveEffect_Update>(RE::VTABLE_ValueModifierEffect[0]);
 			stl::write_vfunc<0x4, DualActiveEffect_Update>(RE::VTABLE_DualValueModifierEffect[0]);
-			stl::write_vfunc<0x4, StaggerEffect_Update>(RE::VTABLE_StaggerEffect[0]);
 		}
 	};
 
