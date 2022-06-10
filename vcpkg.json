@@ -29,7 +29,8 @@
                 "articuno",
                 "commonlibsse-ng",
                 "nlohmann-json",
-                "simpleini"
+                "simpleini",
+                "magic-enum"
             ]
         }
     },
