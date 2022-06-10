@@ -39,7 +39,7 @@ void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 			RemoveFromFactionCC(a_actor, ForceFullBodyStagger);
 		} else {
 			TryStagger(a_actor, 0.5f, nullptr);
-			if (g_trueHUD)
+			if (g_trueHUD && !settings->GameSetting.bPoiseAllowStaggerLock)
 				g_trueHUD->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
 		}
 	} else {

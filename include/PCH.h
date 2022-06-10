@@ -3,6 +3,7 @@
 #pragma warning(push)
 #pragma warning(disable: 5105)
 #pragma warning(disable: 4189)
+
 #if defined(FALLOUT4)
 #	include "F4SE/F4SE.h"
 #	include "RE/Fallout.h"
