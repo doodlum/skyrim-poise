@@ -1,0 +1,19 @@
+{
+    "PoiseHealthBaseAV" : "Health",
+
+    "Multipliers": {
+        "Damage" : {
+            "Health"    : 0.5,
+            "Stamina"   : 0.5,
+            "Magicka"   : 0.0,
+            "Mass"      : 1.0,
+            "Stagger"   : 10.0
+        },
+        "Recovery" : {
+            "Health"    : 0.25,
+            "Stamina"   : 0.25,
+            "Magicka"   : 0.0,
+            "Mass"      : 1.0
+        }
+    }
+}
