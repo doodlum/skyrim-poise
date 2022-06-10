@@ -23,6 +23,7 @@
 #	endif
 #endif
 
+#include <magic_enum.hpp>
 
 #include <ShlObj_core.h>
 #include <Windows.h>
@@ -58,7 +59,7 @@ namespace stl
 	}
 
 	template <std::size_t idx, class T>
-	void write_vfunc(REL::ID id)
+	void write_vfunc(REL::VariantID id)
 	{
 		REL::Relocation<std::uintptr_t> vtbl{ id };
 		T::func = vtbl.write_vfunc(idx, T::thunk);
