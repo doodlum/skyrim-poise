@@ -23,13 +23,14 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 		}
 	case SKSE::MessagingInterface::kPostLoad:
 		{
+			auto settings = Settings::GetSingleton();
+			settings->LoadSettings();
 			PoiseAVHUD::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
-			if (PoiseAVHUD::GetSingleton()->g_trueHUD) {
+			if (PoiseAVHUD::GetSingleton()->g_trueHUD && settings->GameSetting.bPoiseUseSpecialBar) {
 				logger::info("Obtained TrueHUD API");
 			} else {
 				logger::warn("Failed to obtain TrueHUD API");
 			}
-			Settings::GetSingleton()->LoadSettings();
 			break;
 		}
 	default:
