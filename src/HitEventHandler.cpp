@@ -43,6 +43,8 @@ float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[
 			logger::debug("Missed attack with sourceRef");
 	} else if (hitData.skill == RE::ActorValue::kUnarmedDamage) {
 		stagger = aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * settings->GameSetting.fPoiseDamageUnarmedMult;
+	} else if (hitData.skill == RE::ActorValue::kNone){
+		stagger = hitData.physicalDamage * settings->GameSetting.fPoiseDamageCreatureMult;
 	} else if (hitData.weapon) {
 		stagger = hitData.weapon->GetWeight() * settings->GameSetting.fPoiseDamageMeleeMult;
 		logger::debug(FMT_STRING("Weapon Weight {}"), hitData.weapon->GetWeight());

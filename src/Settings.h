@@ -56,6 +56,7 @@ public:
 		float fPoiseDamageBashMult;
 		float fPoiseDamageStaggerMult;
 		float fPoiseDamageUnarmedMult;
+		float fPoiseDamageCreatureMult;
 
 		bool bPoiseAllowStaggerLock;
 		bool bPoiseUseSpecialBar;
@@ -93,6 +94,7 @@ public:
 			fPoiseDamageMeleeMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageMeleeMult", 0));
 			fPoiseDamageBashMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBashMult", 0));
 			fPoiseDamageUnarmedMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageUnarmedMult", 0));
+			fPoiseDamageCreatureMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageCreatureMult", 0));
 
 			bPoiseAllowStaggerLock = ini.GetBoolValue(section, "bPoiseAllowStaggerLock", false);
 			bPoiseUseSpecialBar = ini.GetBoolValue(section, "bPoiseUseSpecialBar", false);
