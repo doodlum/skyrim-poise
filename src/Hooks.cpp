@@ -1,7 +1,7 @@
 #include "Hooks.h"
-#include "PoiseAV.h"
-#include "HitEventHandler.h"
 #include "ActiveEffectHandler.h"
+#include "HitEventHandler.h"
+#include "PoiseAV.h"
 
 namespace Hooks
 {

@@ -26,7 +26,7 @@ public:
 	float GetBaseActorValue(std::string a_actorValue, RE::Actor* a_actor);
 	float GetActorValueMax(std::string a_actorValue, RE::Actor* a_actor);
 	void  DamageActorValue(std::string a_actorValue, RE::Actor* a_actor, float a_damage);
-	void  RestoreActorValue(std::string a_actorValue, RE::Actor* a_actor, float a_restore) 
+	void  RestoreActorValue(std::string a_actorValue, RE::Actor* a_actor, float a_restore)
 	{
 		DamageActorValue(a_actorValue, a_actor, -a_restore);
 	}
@@ -35,8 +35,7 @@ public:
 
 	json                                          avStorage;
 	std::unordered_map<std::string, AVInterface*> registeredInterfaces;
-	std::shared_mutex                                    mtx;
+	std::shared_mutex                             mtx;
 
 private:
-
 };

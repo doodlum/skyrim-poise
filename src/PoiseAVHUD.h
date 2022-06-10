@@ -14,10 +14,10 @@ public:
 
 	float defaultColor;
 
-    static float GetMaxSpecial(RE::Actor* a_actor);
-    static float GetCurrentSpecial(RE::Actor* a_actor);
+	static float GetMaxSpecial(RE::Actor* a_actor);
+	static float GetCurrentSpecial(RE::Actor* a_actor);
 
-    TRUEHUD_API::IVTrueHUD3* g_trueHUD = NULL;
+	TRUEHUD_API::IVTrueHUD3* g_trueHUD = NULL;
 
 private:
 	constexpr PoiseAVHUD() noexcept = default;
@@ -29,4 +29,3 @@ private:
 	PoiseAVHUD& operator=(const PoiseAVHUD&) = delete;
 	PoiseAVHUD& operator=(PoiseAVHUD&&) = delete;
 };
-

@@ -133,7 +133,6 @@ public:
 			}
 			return 1.0f;
 		}
-
 	} GameSetting;
 
 	struct
@@ -151,8 +150,7 @@ public:
 		}
 
 		RE::ActorValue PoiseHealthBaseAV;
-		json root;
-
+		json           root;
 	} EffectSetting;
 
 private:

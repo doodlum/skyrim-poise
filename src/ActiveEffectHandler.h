@@ -41,7 +41,6 @@ protected:
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
-
 		static void Install()
 		{
 			stl::write_vfunc<0x4, ActiveEffect_Update>(RE::VTABLE_ValueModifierEffect[0]);

@@ -15,10 +15,11 @@ bool AVManager::SerializeSave(SKSE::SerializationInterface* a_intfc)
 bool AVManager::SerializeSave(SKSE::SerializationInterface* a_intfc, uint32_t a_type, uint32_t a_version)
 {
 	if (!a_intfc->OpenRecord(a_type, a_version)) {
-		logger::error("Failed to open actor values record!");;
+		logger::error("Failed to open actor values record!");
+		;
 		return false;
 	}
-		
+
 	return SerializeSave(a_intfc);
 }
 
@@ -103,9 +104,9 @@ float AVManager::GetActorValue(std::string a_actorValue, RE::Actor* a_actor)
 		avStorage[formID][a_actorValue] = { 0.0f, 0.f, 0.0f };
 	auto  avInterface = registeredInterfaces.at(a_actorValue);
 	float value = avInterface->GetBaseActorValue(a_actor);
-	value += (float) avStorage[formID][a_actorValue][0];
-	value += (float) avStorage[formID][a_actorValue][1];
-	value -= (float) avStorage[formID][a_actorValue][2];
+	value += (float)avStorage[formID][a_actorValue][0];
+	value += (float)avStorage[formID][a_actorValue][1];
+	value -= (float)avStorage[formID][a_actorValue][2];
 	return value;
 }
 

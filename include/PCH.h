@@ -23,6 +23,7 @@
 #	endif
 #endif
 
+#define MAGIC_ENUM_RANGE_MAX 256
 #include <magic_enum.hpp>
 
 #include <ShlObj_core.h>
@@ -64,7 +65,6 @@ namespace stl
 		REL::Relocation<std::uintptr_t> vtbl{ id };
 		T::func = vtbl.write_vfunc(idx, T::thunk);
 	}
-
 }
 
 namespace logger = SKSE::log;
@@ -77,4 +77,3 @@ namespace util
 #define DLLEXPORT __declspec(dllexport)
 
 #include "Plugin.h"
-
