@@ -12,7 +12,6 @@ void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggr
 
 	if (a_poiseDamage > 0 && a_target != a_aggressor) {
 		a_poiseDamage *= settings->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
-
 		if (a_target->IsPlayerRef()) {
 			a_poiseDamage *= settings->GameSetting.fPoiseDamageToPCMult;
 		}
@@ -73,19 +72,10 @@ float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[
 	return stagger * baseMult;
 }
 
-// unused
-void HitEventHandler::PreProcessVanillaStaggerAttempt([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, float& stagger)
+void HitEventHandler::PreProcessHit(RE::Actor* target, [[maybe_unused]] RE::HitData& hitData)
 {
 	auto settings = Settings::GetSingleton();
-	if (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock)
-		DamageAndCheckPoise(target, aggressor, stagger * settings->GameSetting.fPoiseDamageStaggerMult);
-	stagger = 0.0f;
-}
-
-void HitEventHandler::PreProcessHitEvent(RE::Actor* target, [[maybe_unused]] RE::HitData& hitData)
-{
-	auto settings = Settings::GetSingleton();
-	if (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock) {
+	if (target->currentProcess && (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock)) {
 		auto poiseDamage = RecalculateStagger(target, hitData.aggressor.get().get(), hitData);
 		DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage);
 	}

@@ -16,9 +16,7 @@ public:
 
 	static float RecalculateStagger([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, [[maybe_unused]] RE::HitData& hitData);
 
-	void PreProcessVanillaStaggerAttempt(RE::Actor* target, RE::Actor* aggressor, float& staggerMult);
-
-	void PreProcessHitEvent(RE::Actor* target, RE::HitData& hitData);
+	void PreProcessHit(RE::Actor* target, RE::HitData& hitData);
 
 	static void DamageAndCheckPoise(RE::Actor* a_target, [[maybe_unused]] RE::Actor* a_aggressor, float a_poiseDamage);
 
@@ -37,7 +35,7 @@ protected:
 			static void thunk(RE::Actor* target, RE::HitData& hitData)
 			{
 				auto handler = GetSingleton();
-				handler->PreProcessHitEvent(target, hitData);
+				handler->PreProcessHit(target, hitData);
 				func(target, hitData);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
@@ -60,8 +58,6 @@ protected:
 			{
 				if (staggerMult > 0.0f) {
 					func(entry, target, aggressor, staggerMult);
-					//auto handler = GetSingleton();
-					//handler->PreProcessVanillaStaggerAttempt(target, aggressor, staggerMult);
 				} else {
 					staggerMult = -staggerMult;
 				}

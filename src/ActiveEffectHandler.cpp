@@ -13,15 +13,16 @@ float ActiveEffectHandler::CalculateAVEffectPoiseDamage([[maybe_unused]] RE::Act
 
 	std::string sEffectType = a_activeEffect->effect->baseEffect->IsDetrimental() ? "Damage" : "Recovery";
 	std::string baseAVString = std::string(magic_enum::enum_name(a_actorValue).substr(1)).c_str();
-	auto        actorValue = settings->EffectSetting.root["Magic Effects"]["Actor Value"][sEffectType][baseAVString];
+	auto        actorValue = settings->EffectSetting.root["Magic Effects"]["Actor Values"][sEffectType][baseAVString];
 	if (actorValue != nullptr)
 		poiseDamage = static_cast<float>(actorValue);
 	else
 		return 0.0f;
 
 	std::string resistAVString = std::string(magic_enum::enum_name(a_activeEffect->effect->baseEffect->data.resistVariable).substr(1)).c_str();
-	if (auto resistValue = settings->EffectSetting.root["Magic Effects"]["Resist Value"][resistAVString] != nullptr)
+	if (auto resistValue = settings->EffectSetting.root["Magic Effects"]["Resist Values"][resistAVString] != nullptr) {
 		poiseDamage *= static_cast<float>(resistValue);
+	}
 
 	return poiseDamage;
 }
