@@ -1,8 +1,12 @@
 {
-    "PoiseHealthBaseAV" : "Health",
-
+    "Races" : {
+        "ChickenRace" : 0.1,
+        "HareRace"    : 0.1,
+        "SkeeverRace" : 5.0,
+        "SkeeverWhiteRace" : 5.0
+    },
     "Magic Effects" : {
-        "Actor Value" : {
+        "Actor Values" : {
             "Damage" : {
                 "Health"    : 0.5,
                 "Stamina"   : 0.5,
@@ -16,8 +20,7 @@
                 "Mass"      : 1.0
             }
         },
-        "Resist Value" : {
-
+        "Resist Values" : {
         }
     }
 }

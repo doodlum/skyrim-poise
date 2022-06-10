@@ -146,15 +146,8 @@ public:
 		{
 			std::ifstream i(a_path);
 			i >> root;
-
-			auto av = magic_enum::enum_cast<RE::ActorValue>('k' + (std::string)root["PoiseHealthBaseAV"]);
-			if (av.has_value())
-				PoiseHealthBaseAV = av.value();
-			else
-				PoiseHealthBaseAV = RE::ActorValue::kNone;
 		}
 
-		RE::ActorValue PoiseHealthBaseAV;
 		json           root;
 	} EffectSetting;
 

@@ -5,8 +5,12 @@
 float PoiseAV::GetBaseActorValue([[maybe_unused]] RE::Actor* a_actor)
 {
 	auto settings = Settings::GetSingleton();
-	auto poise = (a_actor->GetBaseActorValue(settings->EffectSetting.PoiseHealthBaseAV) + a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kPermanent, settings->EffectSetting.PoiseHealthBaseAV)) * settings->GameSetting.fPoiseHealthAVMult;
+	auto poise = a_actor->GetBaseActorValue(RE::ActorValue::kMass) * settings->GameSetting.fPoiseHealthAVMult;
 	poise += a_actor->equippedWeight * Settings::GetSingleton()->GameSetting.fPoiseHealthArmorMult;
+
+	if (auto raceMult = settings->EffectSetting.root["Races"][a_actor->GetFormEditorID()]["Multiplier"] != nullptr) {
+		poise *= raceMult;
+	}
 
 	return poise;
 }
