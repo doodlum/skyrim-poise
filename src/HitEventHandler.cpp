@@ -10,8 +10,13 @@ void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggr
 	auto avManager = AVManager::GetSingleton();
 	avManager->mtx.lock();
 
-	if (a_poiseDamage > 0 && a_target != a_aggressor)
+	if (a_poiseDamage > 0 && a_target != a_aggressor) {
 		a_poiseDamage *= settings->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
+
+		if (a_target->IsPlayerRef()) {
+			a_poiseDamage *= settings->GameSetting.fPoiseDamageToPCMult;
+		}
+	}
 
 	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
 	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
@@ -43,7 +48,7 @@ float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[
 			logger::debug("Missed attack with sourceRef");
 	} else if (hitData.skill == RE::ActorValue::kUnarmedDamage) {
 		stagger = aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * settings->GameSetting.fPoiseDamageUnarmedMult;
-	} else if (hitData.skill == RE::ActorValue::kNone){
+	} else if (hitData.skill == RE::ActorValue::kNone) {
 		stagger = hitData.physicalDamage * settings->GameSetting.fPoiseDamageCreatureMult;
 	} else if (hitData.weapon) {
 		stagger = hitData.weapon->GetWeight() * settings->GameSetting.fPoiseDamageMeleeMult;

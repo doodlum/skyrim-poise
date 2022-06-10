@@ -54,9 +54,10 @@ public:
 		float fPoiseDamageArrowMult;
 		float fPoiseDamageMeleeMult;
 		float fPoiseDamageBashMult;
-		float fPoiseDamageStaggerMult;
 		float fPoiseDamageUnarmedMult;
 		float fPoiseDamageCreatureMult;
+
+		float fPoiseDamageToPCMult;
 
 		bool bPoiseAllowStaggerLock;
 		bool bPoiseUseSpecialBar;
@@ -82,7 +83,7 @@ public:
 			ini.SetUnicode();
 			ini.LoadFile(a_path);
 
-			static const char* section = "Multipliers";
+			static const char* section = "Settings";
 
 			fPoiseHealthAVMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthAVMult", 0));
 			fPoiseHealthArmorMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthArmorMult", 0));
@@ -95,6 +96,8 @@ public:
 			fPoiseDamageBashMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBashMult", 0));
 			fPoiseDamageUnarmedMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageUnarmedMult", 0));
 			fPoiseDamageCreatureMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageCreatureMult", 0));
+
+			fPoiseDamageToPCMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageToPCMult", 0));
 
 			bPoiseAllowStaggerLock = ini.GetBoolValue(section, "bPoiseAllowStaggerLock", false);
 			bPoiseUseSpecialBar = ini.GetBoolValue(section, "bPoiseUseSpecialBar", false);
