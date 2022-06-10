@@ -7,21 +7,21 @@
 
 float ActiveEffectHandler::CalculateAVEffectPoiseDamage([[maybe_unused]] RE::ActiveEffect* a_activeEffect, RE::ActorValue a_actorValue)
 {
-	if (a_actorValue == RE::ActorValue::kNone)
-		return 0.0f;
-
-	float poiseDamage = 0.0f;
-
 	auto settings = Settings::GetSingleton();
 
-	std::string avString = std::string(magic_enum::enum_name(a_actorValue).substr(1)).c_str();
+	float poiseDamage;
 
-	std::string sType = a_activeEffect->effect->baseEffect->IsDetrimental() ? "Damage" : "Recovery";
-
-	if (settings->EffectSetting.root["Multipliers"][sType][avString] != nullptr)
-		poiseDamage = static_cast<float>(settings->EffectSetting.root["Multipliers"][sType][avString]);
+	std::string sEffectType = a_activeEffect->effect->baseEffect->IsDetrimental() ? "Damage" : "Recovery";
+	std::string baseAVString = std::string(magic_enum::enum_name(a_actorValue).substr(1)).c_str();
+	auto        actorValue = settings->EffectSetting.root["Magic Effects"]["Actor Value"][sEffectType][baseAVString];
+	if (actorValue != nullptr)
+		poiseDamage = static_cast<float>(actorValue);
 	else
-		logger::debug(FMT_STRING("Could not find {} av"), avString);
+		return 0.0f;
+
+	std::string resistAVString = std::string(magic_enum::enum_name(a_activeEffect->effect->baseEffect->data.resistVariable).substr(1)).c_str();
+	if (auto resistValue = settings->EffectSetting.root["Magic Effects"]["Resist Value"][resistAVString] != nullptr)
+		poiseDamage *= static_cast<float>(resistValue);
 
 	return poiseDamage;
 }
