@@ -16,6 +16,7 @@ void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggr
 	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
 	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
 	if (poise == 0.0f) {
+		a_target->AddToFaction(PoiseAV::GetSingleton()->ForceFullBodyStagger, 0);
 		auto poiseDamagePercent = a_poiseDamage / avManager->GetActorValueMax(PoiseAV::g_avName, a_target);
 		// Stagger duration is relative to the power of the attacking weapon
 		logger::debug(FMT_STRING("Poise Damage Percent {}"), poiseDamagePercent);

@@ -1,4 +1,3 @@
-
 #include "AVManager.h"
 #include "Hooks.h"
 #include "Serialization.h"
@@ -13,6 +12,7 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 	switch (message->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
+			PoiseAV::GetSingleton()->RetrieveFullBodyStaggerFaction();
 			auto trueHud = PoiseAVHUD::GetSingleton();
 			if (trueHud->g_trueHUD) {
 				if (trueHud->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {

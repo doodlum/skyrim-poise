@@ -36,7 +36,8 @@ void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 			if (g_trueHUD) {
 				g_trueHUD->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 			}
-		}  else {
+			RemoveFromFactionCC(a_actor, ForceFullBodyStagger);
+		} else {
 			TryStagger(a_actor, 0.5f, nullptr);
 			if (g_trueHUD)
 				g_trueHUD->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);

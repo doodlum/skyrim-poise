@@ -57,6 +57,23 @@ public:
 	//	}
 	//}
 
+	RE::TESFaction* ForceFullBodyStagger;
+
+	void RetrieveFullBodyStaggerFaction()
+	{
+		ForceFullBodyStagger = RE::TESForm::LookupByID(0x10CED7)->As<RE::TESFaction>();
+	}
+
+	void RemoveFromFactionCC(RE::Actor* a_actor, RE::TESFaction* a_faction)
+	{
+		if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
+			if (auto script = scriptFactory->Create()) {
+				script->SetCommand(fmt::format(FMT_STRING("RemoveFac {:X}"), a_faction->GetFormID()));
+				script->CompileAndRun(a_actor);
+			}
+		}
+	}
+
 protected:
 	struct Hooks
 	{
