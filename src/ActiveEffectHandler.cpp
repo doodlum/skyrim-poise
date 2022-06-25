@@ -20,7 +20,8 @@ float ActiveEffectHandler::CalculateAVEffectPoiseDamage([[maybe_unused]] RE::Act
 		return 0.0f;
 
 	std::string resistAVString = std::string(magic_enum::enum_name(a_activeEffect->effect->baseEffect->data.resistVariable).substr(1)).c_str();
-	if (auto resistValue = settings->EffectSetting.root["Magic Effects"]["Resist Values"][resistAVString] != nullptr) {
+	auto        resistValue = settings->EffectSetting.root["Magic Effects"]["Resist Values"][resistAVString];
+	if (resistValue != nullptr) {
 		poiseDamage *= static_cast<float>(resistValue);
 	}
 

@@ -1,9 +1,9 @@
 {
     "Races" : {
-        "ChickenRace" : 0.1,
-        "HareRace"    : 0.1,
-        "SkeeverRace" : 5.0,
-        "SkeeverWhiteRace" : 5.0
+        "ChickenRace" : 0.5,
+        "HareRace"    : 0.3,
+        "SkeeverRace" : 0.6,
+        "SkeeverWhiteRace" : 0.6
     },
     "Magic Effects" : {
         "Actor Values" : {
@@ -14,13 +14,14 @@
                 "Mass"      : 1.0
             },
             "Recovery" : {
-                "Health"    : 0.25,
-                "Stamina"   : 0.25,
+                "Health"    : 0.2,
+                "Stamina"   : 0.2,
                 "Magicka"   : 0.0,
                 "Mass"      : 1.0
             }
         },
         "Resist Values" : {
+            "PoisonResist" : 0.5
         }
     }
 }

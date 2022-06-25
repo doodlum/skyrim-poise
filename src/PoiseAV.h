@@ -30,13 +30,6 @@ public:
 		return &avInterface;
 	}
 
-	static void TryStagger(RE::Actor* target, [[maybe_unused]] float staggerMult, [[maybe_unused]] RE::Actor* aggressor)
-	{
-		using func_t = decltype(&TryStagger);
-		REL::Relocation<func_t> func{ REL::RelocationID(36700, 37710) };
-		func(target, -staggerMult, aggressor);
-	}
-
 	//static void TryPushActorAway(RE::Actor* target, [[maybe_unused]] float staggerMult, RE::Actor* aggressor)
 	//{
 	//	if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
@@ -64,17 +57,29 @@ public:
 		ForceFullBodyStagger = RE::TESForm::LookupByID(0x10CED7)->As<RE::TESFaction>();
 	}
 
-	void RemoveFromFactionCC(RE::Actor* a_actor, RE::TESFaction* a_faction)
+	static void TryStagger(RE::Actor* a_target, float a_staggerMult, RE::Actor* a_aggressor)
 	{
-		if (auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>()) {
-			if (auto script = scriptFactory->Create()) {
-				script->SetCommand(fmt::format(FMT_STRING("RemoveFac {:X}"), a_faction->GetFormID()));
-				script->CompileAndRun(a_actor);
-			}
-		}
+		using func_t = decltype(&TryStagger);
+		REL::Relocation<func_t> func{ REL::RelocationID(36700, 37710) };
+		func(a_target, -a_staggerMult, a_aggressor);
+	}
+
+	static void RemoveFromFaction(RE::Actor* a_actor, RE::TESFaction* a_faction)
+	{
+		using func_t = decltype(&RemoveFromFaction);
+		REL::Relocation<func_t> func{ REL::RelocationID(36680, 37688) };
+		func(a_actor, a_faction);
+	}
+
+	static RE::ActorValue GetActorValueIdFromName(char* a_name)
+	{
+		using func_t = decltype(&GetActorValueIdFromName);
+		REL::Relocation<func_t> func{ REL::RelocationID(26570, 27203) };
+		func(a_name);
 	}
 
 protected:
+
 	struct Hooks
 	{
 		struct PlayerCharacter_Update

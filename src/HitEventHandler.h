@@ -28,6 +28,7 @@ public:
 	}
 
 protected:
+
 	struct Hooks
 	{
 		struct ProcessHitEvent

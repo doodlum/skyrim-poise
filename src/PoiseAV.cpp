@@ -5,12 +5,15 @@
 float PoiseAV::GetBaseActorValue([[maybe_unused]] RE::Actor* a_actor)
 {
 	auto settings = Settings::GetSingleton();
-	auto poise = a_actor->GetBaseActorValue(RE::ActorValue::kMass) * settings->GameSetting.fPoiseHealthAVMult;
-	poise += a_actor->equippedWeight * Settings::GetSingleton()->GameSetting.fPoiseHealthArmorMult;
+	float poise;
+	std::string editorID = a_actor->GetRace()->GetFormEditorID();
 
-	if (auto raceMult = settings->EffectSetting.root["Races"][a_actor->GetFormEditorID()]["Multiplier"] != nullptr) {
-		poise *= raceMult;
-	}
+	if (!editorID.empty() && (settings->EffectSetting.root["Races"][editorID] != nullptr))
+		poise = (float)settings->EffectSetting.root["Races"][editorID];
+	else
+		poise = a_actor->GetBaseActorValue(RE::ActorValue::kMass);
+	poise *= settings->GameSetting.fPoiseHealthAVMult;
+	poise += a_actor->equippedWeight * Settings::GetSingleton()->GameSetting.fPoiseHealthArmorMult;
 
 	return poise;
 }
@@ -40,7 +43,7 @@ void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 			if (g_trueHUD) {
 				g_trueHUD->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 			}
-			RemoveFromFactionCC(a_actor, ForceFullBodyStagger);
+			RemoveFromFaction(a_actor, ForceFullBodyStagger);
 		} else {
 			TryStagger(a_actor, 0.5f, nullptr);
 			if (g_trueHUD && !settings->GameSetting.bPoiseAllowStaggerLock)
