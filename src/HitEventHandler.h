@@ -18,8 +18,6 @@ public:
 
 	void PreProcessHit(RE::Actor* target, RE::HitData& hitData);
 
-	static void DamageAndCheckPoise(RE::Actor* a_target, [[maybe_unused]] RE::Actor* a_aggressor, float a_poiseDamage);
-
 	static void ApplyPerkEntryPoint(INT32 entry, RE::Character* actor_a, RE::Character* actor_b, float* out)
 	{
 		using func_t = decltype(&ApplyPerkEntryPoint);

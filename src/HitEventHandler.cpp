@@ -4,33 +4,6 @@
 #include "PoiseAVHUD.h"
 #include "Settings.h"
 
-void HitEventHandler::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, float a_poiseDamage)
-{
-	auto settings = Settings::GetSingleton();
-	auto avManager = AVManager::GetSingleton();
-	avManager->mtx.lock();
-
-	if (a_poiseDamage > 0 && a_target != a_aggressor) {
-		a_poiseDamage *= settings->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
-		if (a_target->IsPlayerRef()) {
-			a_poiseDamage *= settings->GameSetting.fPoiseDamageToPCMult;
-		}
-	}
-
-	avManager->DamageActorValue(PoiseAV::g_avName, a_target, a_poiseDamage);
-	auto poise = avManager->GetActorValue(PoiseAV::g_avName, a_target);
-	if (poise == 0.0f) {
-		a_target->AddToFaction(PoiseAV::GetSingleton()->ForceFullBodyStagger, 0);
-		auto poiseDamagePercent = a_poiseDamage / avManager->GetActorValueMax(PoiseAV::g_avName, a_target);
-		// Stagger duration is relative to the power of the attacking weapon
-		logger::debug(FMT_STRING("Poise Damage Percent {}"), poiseDamagePercent);
-		PoiseAV::TryStagger(a_target, poiseDamagePercent, a_aggressor);
-	}
-	logger::debug(FMT_STRING("Target {} Poise Damage {} Poise Health {} / {}"), a_target->GetName(), a_poiseDamage, avManager->GetActorValue(PoiseAV::g_avName, a_target), avManager->GetActorValueMax(PoiseAV::g_avName, a_target));
-
-	avManager->mtx.unlock();
-}
-
 float HitEventHandler::RecalculateStagger([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, [[maybe_unused]] RE::HitData& hitData)
 {
 	auto  settings = Settings::GetSingleton();
@@ -77,7 +50,7 @@ void HitEventHandler::PreProcessHit(RE::Actor* target, [[maybe_unused]] RE::HitD
 	auto settings = Settings::GetSingleton();
 	if (target->currentProcess && (!target->actorState2.staggered || settings->GameSetting.bPoiseAllowStaggerLock)) {
 		auto poiseDamage = RecalculateStagger(target, hitData.aggressor.get().get(), hitData);
-		DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage);
+		PoiseAV::GetSingleton()->DamageAndCheckPoise(target, hitData.aggressor.get().get(), poiseDamage);
 	}
 	hitData.stagger = static_cast<uint32_t>(0.00);
 }

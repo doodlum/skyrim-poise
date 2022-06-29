@@ -34,7 +34,10 @@ bool AVManager::DeserializeLoad(SKSE::SerializationInterface* a_intfc)
 
 void AVManager::Revert()
 {
+	auto avManager = AVManager::GetSingleton();
+	avManager->mtx.lock();
 	avStorage.clear();
+	avManager->mtx.unlock();
 }
 
 auto AVManager::ProcessEvent(const RE::TESFormDeleteEvent* a_event, RE::BSTEventSource<RE::TESFormDeleteEvent>*) -> RE::BSEventNotifyControl
