@@ -56,27 +56,6 @@ namespace Serialization
 
 	inline bool Save(SKSE::SerializationInterface* a_intfc, json& root)
 	{
-		json emptyAV = { 0.0f, 0.0f, 0.0f };
-		json temporaryJson = root;
-		for (auto& el : root.items()) {
-			std::string sformID = el.key();
-			try {
-				if (auto form = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))) {
-					if (auto actor = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))->As<RE::Actor>()) {
-						if (actor->currentProcess && actor->currentProcess->InHighProcess())
-							continue;
-					}
-				}
-				temporaryJson.erase(sformID);
-			} catch (std::invalid_argument const&) {
-				logger::error("Bad input: std::invalid_argument thrown");
-			} catch (std::out_of_range const&) {
-				logger::error("Integer overflow: std::out_of_range thrown");
-			}
-		}
-
-		root = temporaryJson;
-
 		std::string elem = root.dump();
 		std::size_t size = elem.length();
 
@@ -137,12 +116,6 @@ namespace Serialization
 	inline void RevertCallback(SKSE::SerializationInterface*)
 	{
 		auto avManager = AVManager::GetSingleton();
-		avManager->mtx.lock();
 		avManager->Revert();
-		avManager->mtx.unlock();
 	}
-
-	void SaveCallback(SKSE::SerializationInterface* a_intfc);
-	void LoadCallback(SKSE::SerializationInterface* a_intfc);
-	void RevertCallback(SKSE::SerializationInterface*);
 }

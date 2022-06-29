@@ -1,5 +1,6 @@
 #include "AVManager.h"
 #include "Hooks.h"
+#include "Events.h"
 #include "Serialization.h"
 
 #include "PoiseAV.h"
@@ -54,6 +55,7 @@ void Init()
 	serialization->SetRevertCallback(Serialization::RevertCallback);
 
 	Hooks::Install();
+	Events::Register();
 }
 
 void InitializeLog()

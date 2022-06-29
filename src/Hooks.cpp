@@ -3,13 +3,10 @@
 #include "HitEventHandler.h"
 #include "PoiseAV.h"
 
-namespace Hooks
+void Hooks::Install()
 {
-	void Hooks::Install()
-	{
-		PoiseAV::InstallHooks();
-		HitEventHandler::InstallHooks();
-		ActiveEffectHandler::InstallHooks();
-		logger::info("Installed all hooks");
-	}
+	PoiseAV::InstallHooks();
+	HitEventHandler::InstallHooks();
+	ActiveEffectHandler::InstallHooks();
 }
+
