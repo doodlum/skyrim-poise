@@ -35,13 +35,17 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 			break;
 		}
 	case SKSE::MessagingInterface::kPreLoadGame:
-		auto settings = Settings::GetSingleton();
-		settings->LoadSettings();
-		break;
+		{
+			auto settings = Settings::GetSingleton();
+			settings->LoadSettings();
+			break;
+		}
 	case SKSE::MessagingInterface::kNewGame:
-		auto settings = Settings::GetSingleton();
-		settings->LoadSettings();
-		break;
+		{
+			auto settings = Settings::GetSingleton();
+			settings->LoadSettings();
+			break;
+		}
 	default:
 		break;
 	}
