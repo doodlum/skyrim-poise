@@ -26,7 +26,7 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 		{
 			auto settings = Settings::GetSingleton();
 			settings->LoadSettings();
-			if (PoiseAVHUD::GetSingleton()->g_trueHUD && settings->GameSetting.bPoiseUseSpecialBar) {
+			if (settings->GameSetting.bPoiseUseSpecialBar) {
 				PoiseAVHUD::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
 				logger::info("Obtained TrueHUD API");
 			} else {
