@@ -22,7 +22,7 @@ public:
 
 		ScriptEventSource->AddEventSink(&singleton);
 
-		logger::info("Registered {}.", typeid(singleton).name());
+		logger::info("Registered {}", typeid(singleton).name());
 
 		return true;
 	}
@@ -45,7 +45,7 @@ public:
 
 		ScriptEventSource->AddEventSink(&singleton);
 
-		logger::info("Registered {}.", typeid(singleton).name());
+		logger::info("Registered {}", typeid(singleton).name());
 
 		return true;
 	}
@@ -68,7 +68,7 @@ public:
 
 		ScriptEventSource->AddEventSink(&singleton);
 
-		logger::info("Registered {}.", typeid(singleton).name());
+		logger::info("Registered {}", typeid(singleton).name());
 
 		return true;
 	}
