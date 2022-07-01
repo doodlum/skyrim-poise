@@ -67,7 +67,7 @@ namespace Serialization
 				logger::error("Failed to write element!");
 				return false;
 			}
-			logger::info(FMT_STRING("Serialized {}"), elem);
+			logger::debug(FMT_STRING("Serialized {}"), elem);
 		}
 		return true;
 	}
@@ -87,7 +87,7 @@ namespace Serialization
 			logger::error("Failed to load element!");
 			return false;
 		} else {
-			logger::info(FMT_STRING("Deserialized {}"), elem);
+			logger::debug(FMT_STRING("Deserialized {}"), elem);
 
 			json temporaryJson = json::parse(elem);
 
@@ -100,7 +100,7 @@ namespace Serialization
 						std::string newFormIDs = std::to_string(newFormID);
 						parsedJson[newFormIDs] = temporaryJson[oldFormIDs];
 					} else {
-						logger::info(FMT_STRING("Discarded removed form {:X}"), oldFormID);
+						logger::debug(FMT_STRING("Discarded removed form {:X}"), oldFormID);
 					}
 				} catch (std::invalid_argument const&) {
 					logger::error("Bad input: std::invalid_argument thrown");
