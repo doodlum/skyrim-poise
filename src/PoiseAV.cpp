@@ -97,7 +97,7 @@ void PoiseAV::GarbageCollection() {
 						continue;
 				}
 			}
-			avManager->avStorage.erase(sformID);
+			temporaryJson.erase(sformID);
 		} catch (std::invalid_argument const&) {
 			logger::error("Bad input: std::invalid_argument thrown");
 		} catch (std::out_of_range const&) {
