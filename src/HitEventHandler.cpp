@@ -35,6 +35,15 @@ float HitEventHandler::GetShieldDamage(RE::TESObjectARMO* a_shield)
 	return a_shield->weight;
 }
 
+float HitEventHandler::GetMiscDamage()
+{
+	auto settings = Settings::GetSingleton();
+	auto miscDamage = settings->JSONSettings["Weapons"]["Damage"]["Misc"];
+	if (miscDamage != nullptr)
+		return static_cast<float>(miscDamage);
+	return 5.0f;
+}
+
 float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggressor, RE::HitData* hitData)
 {
 	auto  settings = Settings::GetSingleton();
@@ -53,10 +62,20 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 		stagger = hitData->physicalDamage * settings->Damage.CreatureMult;
 	} else if (hitData->weapon) {
 		stagger = GetWeaponDamage(hitData->weapon) * settings->Damage.MeleeMult;
-	} else if (hitData->skill == RE::ActorValue::kBlock && aggressor->GetEquippedObject(true)) {
-		stagger = GetShieldDamage(aggressor->GetEquippedObject(true)->As<RE::TESObjectARMO>()) * settings->Damage.BashMult;
-	} else
+	} else if (hitData->skill == RE::ActorValue::kBlock) {
+		auto leftHand = aggressor->GetEquippedObject(true);
+		auto rightHand = aggressor->GetEquippedObject(false);
+		if (leftHand && leftHand->formType == RE::FormType::Armor) {
+			stagger = GetShieldDamage(leftHand->As<RE::TESObjectARMO>()) * settings->Damage.BashMult;
+		} else if (rightHand && rightHand->formType == RE::FormType::Weapon) {
+			stagger = GetWeaponDamage(rightHand->As<RE::TESObjectWEAP>()) * settings->Damage.BashMult;
+		} else {
+			stagger = GetMiscDamage() * settings->Damage.BashMult;
+		}
+	} else {
 		logger::debug("Unknown attack");
+		return 0.0f;
+	}
 
 	auto attackData = hitData->attackData ? hitData->attackData.get() : nullptr;
 	if (attackData) {

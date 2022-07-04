@@ -16,6 +16,7 @@ public:
 
 	float GetWeaponDamage(RE::TESObjectWEAP* a_weapon);
 	float GetShieldDamage(RE::TESObjectARMO* a_shield);
+	float GetMiscDamage();
 
 	float RecalculateStagger(RE::Actor* target, RE::Actor* aggressor, RE::HitData* hitData);
 

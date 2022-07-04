@@ -38,7 +38,8 @@
       "QtrStaff": 10.0,
       "Rapier": 6.0,
       "Whip": 8.0,
-      "Shield": 12.0
+      "Shield": 12.0,
+      "Misc": 5.0
     }
   }
 }
