@@ -54,7 +54,6 @@ public:
 
 	struct
 	{
-		float ArrowMult{ 0.5 };
 		float BashMult{ 2 };
 		float BowMult{ 1 };
 		float CreatureMult{ 1 };
