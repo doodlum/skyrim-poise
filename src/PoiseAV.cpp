@@ -2,21 +2,34 @@
 #include "PoiseAVHUD.h"
 #include "Settings.h"
 
-float PoiseAV::GetBaseActorValue([[maybe_unused]] RE::Actor* a_actor)
+bool PoiseAV::CanDamageActor(RE::Actor* a_actor)
 {
-	auto settings = Settings::GetSingleton();
-	float poise;
+	if (a_actor && a_actor->currentProcess && !a_actor->IsChild()) {
+		switch (Settings::GetSingleton()->Modes.StaggerMode) {
+		case 0:
+			return true;
+		case 1:
+			return !a_actor->actorState2.staggered;
+		}
+	}
+	return false;
+}
+
+float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
+{
+	auto        settings = Settings::GetSingleton();
+	float       health;
 	std::string editorID = a_actor->GetRace()->GetFormEditorID();
 
-	if (!editorID.empty() && (settings->EffectSetting.root["Races"][editorID] != nullptr))
-		poise = (float)settings->EffectSetting.root["Races"][editorID];
+	if (!editorID.empty() && (settings->JSONSettings["Races"][editorID] != nullptr))
+		health = (float)settings->JSONSettings["Races"][editorID];
 	else
-		poise = a_actor->GetBaseActorValue(RE::ActorValue::kMass);
+		health = a_actor->GetBaseActorValue(RE::ActorValue::kMass);
 
-	poise *= settings->GameSetting.fPoiseHealthAVMult;
-	poise += a_actor->equippedWeight * Settings::GetSingleton()->GameSetting.fPoiseHealthArmorMult;
+	health *= settings->Health.BaseMult;
+	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
 
-	return poise;
+	return health;
 }
 
 float PoiseAV::GetActorValueMax([[maybe_unused]] RE::Actor* a_actor)
@@ -31,9 +44,12 @@ void PoiseAV::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, f
 	avManager->mtx.lock();
 
 	if (a_poiseDamage > 0 && a_target != a_aggressor) {
-		a_poiseDamage *= settings->GameSetting.GetDamageMultiplier(a_aggressor, a_target);
-		if (a_target->IsPlayerRef()) {
-			a_poiseDamage *= settings->GameSetting.fPoiseDamageToPCMult;
+		a_poiseDamage *= settings->GetDamageMultiplier(a_aggressor, a_target);
+		if (a_target != a_aggressor) {
+			if (a_target->IsPlayerRef())
+				a_poiseDamage *= settings->Damage.ToPCMult;
+			else
+				a_poiseDamage *= settings->Damage.ToNPCMult;
 		}
 	}
 
@@ -55,35 +71,33 @@ void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 {
 	auto settings = Settings::GetSingleton();
 	auto avManager = AVManager::GetSingleton();
-	auto g_trueHUD = PoiseAVHUD::GetSingleton()->g_trueHUD;
 
-	if (g_trueHUD && !settings->GameSetting.bPoiseAllowStaggerLock) {
-		if (a_actor->actorState2.staggered)
-			g_trueHUD->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
+	if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
+		if (!CanDamageActor(a_actor))
+			PoiseAVHUD::trueHUDInterface->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
 		else
-			g_trueHUD->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
+			PoiseAVHUD::trueHUDInterface->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
 	}
 
 	avManager->mtx.lock();
 	if (avManager->GetActorValue(g_avName, a_actor) == 0.0f) {
 		if (a_actor->actorState2.staggered) {
 			avManager->RestoreActorValue(g_avName, a_actor, FLT_MAX);
-			if (g_trueHUD) {
-				g_trueHUD->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
+			if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
+				PoiseAVHUD::trueHUDInterface->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
 			}
 			RemoveFromFaction(a_actor, ForceFullBodyStagger);
 		} else {
 			TryStagger(a_actor, 0.5f, nullptr);
-			if (g_trueHUD && !settings->GameSetting.bPoiseAllowStaggerLock)
-				g_trueHUD->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
 		}
 	} else {
-		avManager->RestoreActorValue(g_avName, a_actor, avManager->GetActorValueMax(g_avName, a_actor) * settings->GameSetting.fPoiseRegenRate * a_delta);
+		avManager->RestoreActorValue(g_avName, a_actor, avManager->GetActorValueMax(g_avName, a_actor) * settings->Health.RegenRate * a_delta);
 	}
 	avManager->mtx.unlock();
 }
 
-void PoiseAV::GarbageCollection() {
+void PoiseAV::GarbageCollection()
+{
 	auto avManager = AVManager::GetSingleton();
 	avManager->mtx.lock();
 

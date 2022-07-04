@@ -2,6 +2,9 @@
 
 #include <SimpleIni.h>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 namespace RE
 {
 	enum class DIFFICULTY : std::int32_t
@@ -24,132 +27,58 @@ public:
 		return &singleton;
 	}
 
-	void LoadSettings()
-	{
-		GameSetting.Load(L"Data/SKSE/Plugins/ChocolatePoise.ini");
-		EffectSetting.Load(L"Data/SKSE/Plugins/ChocolatePoise.json");
-	}
+	float fDiffMultHPByPCVE;
+	float fDiffMultHPByPCE;
+	float fDiffMultHPByPCN;
+	float fDiffMultHPByPCH;
+	float fDiffMultHPByPCVH;
+	float fDiffMultHPByPCL;
+	float fDiffMultHPToPCVE;
+	float fDiffMultHPToPCE;
+	float fDiffMultHPToPCN;
+	float fDiffMultHPToPCH;
+	float fDiffMultHPToPCVH;
+	float fDiffMultHPToPCL;
 
 	struct
 	{
-		float fDiffMultHPByPCVE;
-		float fDiffMultHPByPCE;
-		float fDiffMultHPByPCN;
-		float fDiffMultHPByPCH;
-		float fDiffMultHPByPCVH;
-		float fDiffMultHPByPCL;
-		float fDiffMultHPToPCVE;
-		float fDiffMultHPToPCE;
-		float fDiffMultHPToPCN;
-		float fDiffMultHPToPCH;
-		float fDiffMultHPToPCVH;
-		float fDiffMultHPToPCL;
-
-		float fPoiseHealthAVMult;
-		float fPoiseHealthArmorMult;
-
-		float fPoiseRegenRate;
-
-		float fPoiseDamageBowMult;
-		float fPoiseDamageArrowMult;
-		float fPoiseDamageMeleeMult;
-		float fPoiseDamageBashMult;
-		float fPoiseDamageUnarmedMult;
-		float fPoiseDamageCreatureMult;
-
-		float fPoiseDamageToPCMult;
-
-		bool bPoiseAllowStaggerLock;
-		bool bPoiseUseSpecialBar;
-
-		void Load(const wchar_t* a_path)
-		{
-			auto gameSettingCollection = RE::GameSettingCollection::GetSingleton();
-
-			fDiffMultHPByPCVE = gameSettingCollection->GetSetting("fDiffMultHPByPCVE")->GetFloat();
-			fDiffMultHPByPCE = gameSettingCollection->GetSetting("fDiffMultHPByPCE")->GetFloat();
-			fDiffMultHPByPCN = gameSettingCollection->GetSetting("fDiffMultHPByPCN")->GetFloat();
-			fDiffMultHPByPCH = gameSettingCollection->GetSetting("fDiffMultHPByPCH")->GetFloat();
-			fDiffMultHPByPCVH = gameSettingCollection->GetSetting("fDiffMultHPByPCVH")->GetFloat();
-			fDiffMultHPByPCL = gameSettingCollection->GetSetting("fDiffMultHPByPCL")->GetFloat();
-			fDiffMultHPToPCVE = gameSettingCollection->GetSetting("fDiffMultHPToPCVE")->GetFloat();
-			fDiffMultHPToPCE = gameSettingCollection->GetSetting("fDiffMultHPToPCE")->GetFloat();
-			fDiffMultHPToPCN = gameSettingCollection->GetSetting("fDiffMultHPToPCN")->GetFloat();
-			fDiffMultHPToPCH = gameSettingCollection->GetSetting("fDiffMultHPToPCH")->GetFloat();
-			fDiffMultHPToPCVH = gameSettingCollection->GetSetting("fDiffMultHPToPCVH")->GetFloat();
-			fDiffMultHPToPCL = gameSettingCollection->GetSetting("fDiffMultHPToPCL")->GetFloat();
-
-			CSimpleIniA ini;
-			ini.SetUnicode();
-			ini.LoadFile(a_path);
-
-			static const char* section = "Settings";
-
-			fPoiseHealthAVMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthAVMult", 0));
-			fPoiseHealthArmorMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseHealthArmorMult", 0));
-
-			fPoiseRegenRate = static_cast<float>(ini.GetDoubleValue(section, "fPoiseRegenRate", 0));
-
-			fPoiseDamageBowMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBowMult", 0));
-			fPoiseDamageArrowMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageArrowMult", 0));
-			fPoiseDamageMeleeMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageMeleeMult", 0));
-			fPoiseDamageBashMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageBashMult", 0));
-			fPoiseDamageUnarmedMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageUnarmedMult", 0));
-			fPoiseDamageCreatureMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageCreatureMult", 0));
-
-			fPoiseDamageToPCMult = static_cast<float>(ini.GetDoubleValue(section, "fPoiseDamageToPCMult", 0));
-
-			bPoiseAllowStaggerLock = ini.GetBoolValue(section, "bPoiseAllowStaggerLock", false);
-			bPoiseUseSpecialBar = ini.GetBoolValue(section, "bPoiseUseSpecialBar", false);
-		}
-
-		float GetDamageMultiplier(RE::Actor* a_aggressor, RE::Actor* a_target)
-		{
-			if (a_aggressor && (a_aggressor->IsPlayerRef() || a_aggressor->IsPlayerTeammate())) {
-				switch (static_cast<RE::DIFFICULTY>(RE::PlayerCharacter::GetSingleton()->GetGameStatsData().difficulty)) {
-				case RE::DIFFICULTY::kNovice:
-					return fDiffMultHPByPCVE;
-				case RE::DIFFICULTY::kApprentice:
-					return fDiffMultHPByPCE;
-				case RE::DIFFICULTY::kAdept:
-					return fDiffMultHPByPCN;
-				case RE::DIFFICULTY::kExpert:
-					return fDiffMultHPByPCH;
-				case RE::DIFFICULTY::kMaster:
-					return fDiffMultHPByPCVH;
-				case RE::DIFFICULTY::kLegendary:
-					return fDiffMultHPByPCL;
-				}
-			} else if (a_target && (a_target->IsPlayerRef() || a_target->IsPlayerTeammate())) {
-				switch (static_cast<RE::DIFFICULTY>(RE::PlayerCharacter::GetSingleton()->GetGameStatsData().difficulty)) {
-				case RE::DIFFICULTY::kNovice:
-					return fDiffMultHPToPCVE;
-				case RE::DIFFICULTY::kApprentice:
-					return fDiffMultHPToPCE;
-				case RE::DIFFICULTY::kAdept:
-					return fDiffMultHPToPCN;
-				case RE::DIFFICULTY::kExpert:
-					return fDiffMultHPToPCH;
-				case RE::DIFFICULTY::kMaster:
-					return fDiffMultHPToPCVH;
-				case RE::DIFFICULTY::kLegendary:
-					return fDiffMultHPToPCL;
-				}
-			}
-			return 1.0f;
-		}
-	} GameSetting;
+		int StaggerMode{ 1 };
+	} Modes;
 
 	struct
 	{
-		void Load(const wchar_t* a_path)
-		{
-			std::ifstream i(a_path);
-			i >> root;
-		}
+		float BaseMult{ 20 };
+		float ArmorMult{ 0.5 };
+		float RegenRate{ 0.333f };
+	} Health;
 
-		json           root;
-	} EffectSetting;
+	struct
+	{
+		float ArrowMult{ 0.5 };
+		float BashMult{ 2 };
+		float BowMult{ 1 };
+		float CreatureMult{ 1 };
+		float MeleeMult{ 1 };
+		float UnarmedMult{ 1 };
+
+		float ToPCMult{ 1.5 };
+		float ToNPCMult{ 1 };
+
+		float WeightContribution{ 0.5 };
+	} Damage;
+
+	struct
+	{
+		bool SpecialBar{ true };
+	} TrueHUD;
+
+	json JSONSettings;
+
+	float GetDamageMultiplier(RE::Actor* a_aggressor, RE::Actor* a_target);
+	void  LoadGameSettings();
+	void  LoadINI(const wchar_t* a_path);
+	void  LoadJSON(const wchar_t* a_path);
+	void  LoadSettings();
 
 private:
 	Settings() = default;

@@ -18,6 +18,8 @@ public:
 
 	inline static const char* g_avName = "Poise";
 
+	bool CanDamageActor(RE::Actor* a_actor);
+
 	float GetBaseActorValue(RE::Actor* a_actor);
 
 	float GetActorValueMax(RE::Actor* a_actor);
@@ -26,7 +28,7 @@ public:
 
 	void Update(RE::Actor* a_actor, float a_delta);
 
-	void            GarbageCollection();
+	void GarbageCollection();
 
 	static PoiseAV* GetSingleton()
 	{
@@ -83,7 +85,6 @@ public:
 	}
 
 protected:
-
 	struct Hooks
 	{
 		struct PlayerCharacter_Update

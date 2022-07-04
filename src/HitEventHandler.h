@@ -14,11 +14,14 @@ public:
 		Hooks::Install();
 	}
 
-	static float RecalculateStagger([[maybe_unused]] RE::Actor* target, [[maybe_unused]] RE::Actor* aggressor, [[maybe_unused]] RE::HitData& hitData);
+	float GetWeaponDamage(RE::TESObjectWEAP* a_weapon);
+	float GetShieldDamage(RE::TESObjectARMO* a_shield);
 
-	void PreProcessHit(RE::Actor* target, RE::HitData& hitData);
+	float RecalculateStagger(RE::Actor* target, RE::Actor* aggressor, RE::HitData* hitData);
 
-	static void ApplyPerkEntryPoint(INT32 entry, RE::Character* actor_a, RE::Character* actor_b, float* out)
+	void PreProcessHit(RE::Actor* target, RE::HitData* hitData);
+
+	static void ApplyPerkEntryPoint(INT32 entry, RE::Actor* actor_a, RE::Actor* actor_b, float* out)
 	{
 		using func_t = decltype(&ApplyPerkEntryPoint);
 		REL::Relocation<func_t> func{ REL::RelocationID(23073, 23526) };  // 1.5.97 14032ECE0
@@ -26,12 +29,11 @@ public:
 	}
 
 protected:
-
 	struct Hooks
 	{
 		struct ProcessHitEvent
 		{
-			static void thunk(RE::Actor* target, RE::HitData& hitData)
+			static void thunk(RE::Actor* target, RE::HitData* hitData)
 			{
 				auto handler = GetSingleton();
 				handler->PreProcessHit(target, hitData);

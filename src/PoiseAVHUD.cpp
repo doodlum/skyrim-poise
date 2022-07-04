@@ -1,6 +1,6 @@
 #include "PoiseAVHUD.h"
 
-float PoiseAVHUD::GetMaxSpecial([[maybe_unused]] RE::Actor* a_actor)
+float PoiseAVHUD::GetMaxSpecial(RE::Actor* a_actor)
 {
 	if (a_actor) {
 		auto manager = AVManager::GetSingleton();
@@ -9,7 +9,7 @@ float PoiseAVHUD::GetMaxSpecial([[maybe_unused]] RE::Actor* a_actor)
 	return 1.0f;
 }
 
-float PoiseAVHUD::GetCurrentSpecial([[maybe_unused]] RE::Actor* a_actor)
+float PoiseAVHUD::GetCurrentSpecial(RE::Actor* a_actor)
 {
 	if (a_actor) {
 		auto manager = AVManager::GetSingleton();

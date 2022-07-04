@@ -36,7 +36,7 @@ public:
 	static bool Register()
 	{
 		static fastTravelEventHandler singleton;
-		auto                        ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
+		auto                          ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
 
 		if (!ScriptEventSource) {
 			logger::error("Script event source not found");
@@ -59,7 +59,7 @@ public:
 	static bool Register()
 	{
 		static waitEventHandler singleton;
-		auto                          ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
+		auto                    ScriptEventSource = RE::ScriptEventSourceHolder::GetSingleton();
 
 		if (!ScriptEventSource) {
 			logger::error("Script event source not found");

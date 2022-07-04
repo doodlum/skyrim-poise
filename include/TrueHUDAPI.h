@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include <stdint.h>
 #include <queue>
+#include <stdint.h>
 
 /*
 * For modders: Copy this file into your own project if you wish to use this API
@@ -120,16 +120,19 @@ namespace TRUEHUD_API
 		virtual void Update(float a_deltaTime) = 0;
 		virtual void Initialize() = 0;
 		virtual void Dispose() = 0;
-		virtual void SetWidgetState(WidgetState a_newWidgetState) {
+		virtual void SetWidgetState(WidgetState a_newWidgetState)
+		{
 			_widgetState = a_newWidgetState;
 		}
 
-		void AddWidgetTask(WidgetTask a_task) {
+		void AddWidgetTask(WidgetTask a_task)
+		{
 			Locker locker(_lock);
 			_taskQueue.push(std::move(a_task));
 		}
 
-		void ProcessDelegates() {
+		void ProcessDelegates()
+		{
 			while (!_taskQueue.empty()) {
 				auto& task = _taskQueue.front();
 				task();
@@ -138,10 +141,10 @@ namespace TRUEHUD_API
 		}
 
 		RE::GPtr<RE::GFxMovieView> _view;
-		RE::GFxValue _object;
-		uint32_t _widgetID;
+		RE::GFxValue               _object;
+		uint32_t                   _widgetID;
 
-		mutable Lock _lock;
+		mutable Lock           _lock;
 		std::queue<WidgetTask> _taskQueue;
 
 		WidgetState _widgetState = WidgetState::kHidden;
@@ -235,7 +238,7 @@ namespace TRUEHUD_API
 		virtual APIResult FlashActorSpecialBar(SKSE::PluginHandle a_myPluginHandle, RE::ActorHandle a_actorHandle, bool a_bLong) noexcept = 0;
 
 		/// <summary>
-		/// Registers the special resource functions 
+		/// Registers the special resource functions
 		/// </summary>
 		/// <param name="a_myPluginHandle">Your assigned plugin handle</param>
 		/// <param name="a_getCurrentSpecialResource">Function that will return current special resource value</param>

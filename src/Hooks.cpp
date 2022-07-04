@@ -9,4 +9,3 @@ void Hooks::Install()
 	HitEventHandler::InstallHooks();
 	ActiveEffectHandler::InstallHooks();
 }
-

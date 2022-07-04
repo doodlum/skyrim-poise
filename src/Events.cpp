@@ -10,7 +10,6 @@ void Events::Register()
 	waitEventHandler::Register();
 }
 
-
 RE::BSEventNotifyControl cellLoadEventHandler::ProcessEvent(const RE::TESCellFullyLoadedEvent*, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>*)
 {
 	auto poiseAV = PoiseAV::GetSingleton();
@@ -31,4 +30,3 @@ RE::BSEventNotifyControl waitEventHandler::ProcessEvent(const RE::TESWaitStopEve
 	avManager->Revert();
 	return RE::BSEventNotifyControl::kContinue;
 }
-

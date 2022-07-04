@@ -12,12 +12,10 @@ public:
 		return &manager;
 	}
 
-	float defaultColor;
-
 	static float GetMaxSpecial(RE::Actor* a_actor);
 	static float GetCurrentSpecial(RE::Actor* a_actor);
 
-	TRUEHUD_API::IVTrueHUD3* g_trueHUD = NULL;
+	static inline TRUEHUD_API::IVTrueHUD3* trueHUDInterface;
 
 private:
 	constexpr PoiseAVHUD() noexcept = default;

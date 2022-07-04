@@ -5,19 +5,40 @@
         "SkeeverRace" : 0.6,
         "SkeeverWhiteRace" : 0.6
     },
-    "Magic Effects" : {
-        "Actor Values" : {
-            "Damage" : {
-                "Health"    : 0.5,
-                "Mass"      : 1.0
-            },
-            "Recovery" : {
-                "Health"    : 0.2,
-                "Mass"      : 1.0
-            }
-        },
-        "Resist Values" : {
-            "PoisonResist" : 0.5
-        }
+  "Magic Effects": {
+    "Actor Values": {
+      "Damage": {
+        "Health": 0.5,
+        "Mass": 1.0
+      },
+      "Recovery": {
+        "Health": 0.2,
+        "Mass": 1.0
+      }
+    },
+    "Resist Values": {
+      "PoisonResist": 0.5
     }
+  },
+  "Weapons": {
+    "Damage": {
+      "Dagger": 2.0,
+      "Sword": 9.0,
+      "Greatsword": 16.0,
+      "WarAxe": 11.0,
+      "Battleaxe": 20.0,
+      "Mace": 13.0,
+      "Warhammer": 24.0,
+      "Bow": 8.0,
+      "Crossbow": 14.0,
+      "Claw": 3.0,
+      "Halberd": 14.0,
+      "Katana": 7.0,
+      "Pike": 11.0,
+      "QtrStaff": 10.0,
+      "Rapier": 6.0,
+      "Whip": 8.0,
+      "Shield": 12.0
+    }
+  }
 }

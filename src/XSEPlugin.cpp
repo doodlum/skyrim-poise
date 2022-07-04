@@ -1,6 +1,6 @@
 #include "AVManager.h"
-#include "Hooks.h"
 #include "Events.h"
+#include "Hooks.h"
 #include "Serialization.h"
 
 #include "PoiseAV.h"
@@ -13,21 +13,15 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 	switch (message->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
-			PoiseAV::GetSingleton()->RetrieveFullBodyStaggerFaction();
-			auto trueHud = PoiseAVHUD::GetSingleton();
-			if (trueHud->g_trueHUD) {
-				if (trueHud->g_trueHUD->RequestSpecialResourceBarsControl(SKSE::GetPluginHandle()) == TRUEHUD_API::APIResult::OK) {
-					trueHud->g_trueHUD->RegisterSpecialResourceFunctions(SKSE::GetPluginHandle(), PoiseAVHUD::GetCurrentSpecial, PoiseAVHUD::GetMaxSpecial, true);
-				}
-			}
+			auto poiseAV = PoiseAV::GetSingleton();
+			poiseAV->RetrieveFullBodyStaggerFaction();
 			break;
 		}
 	case SKSE::MessagingInterface::kPostLoad:
 		{
-			auto settings = Settings::GetSingleton();
-			settings->LoadSettings();
-			if (settings->GameSetting.bPoiseUseSpecialBar) {
-				PoiseAVHUD::GetSingleton()->g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+			auto poiseAVHUD = PoiseAVHUD::GetSingleton();
+			poiseAVHUD->trueHUDInterface = reinterpret_cast<TRUEHUD_API::IVTrueHUD3*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V3));
+			if (poiseAVHUD->trueHUDInterface) {
 				logger::info("Obtained TrueHUD API");
 			} else {
 				logger::warn("Failed to obtain TrueHUD API");
