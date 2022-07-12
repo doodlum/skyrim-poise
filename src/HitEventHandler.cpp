@@ -7,7 +7,7 @@
 float HitEventHandler::GetWeaponDamage(RE::TESObjectWEAP* a_weapon)
 {
 	auto settings = Settings::GetSingleton();
-	for (auto index = a_weapon->numKeywords - 1; index >= 0; index--) {
+	for (int index = a_weapon->numKeywords - 1; index >= 0; index--) {
 		if (a_weapon->keywords[index]) {
 			std::string keyword = a_weapon->keywords[index]->formEditorID.c_str();
 			auto        pos = keyword.find("WeapType");
