@@ -67,6 +67,8 @@ namespace util
 	using SKSE::stl::report_and_fail;
 }
 
+#define AutoPtr(Type, Name, OffsetSE, OffsetAE) static Type& Name = (*(Type*)RELOCATION_ID(OffsetSE, OffsetAE).address())
+
 #define DLLEXPORT __declspec(dllexport)
 
 #include "Plugin.h"

@@ -3,70 +3,42 @@
 #include "Hooks/PoiseAV.h"
 #include "Storage/Settings.h"
 
-
-bool IsValidEFfect(RE::ActiveEffect* a_activeEffect)
+float ActiveEffectHandler::CalculateEffectMultiplier(RE::ActorValue a_actorValue, bool a_detrimental)
 {
-	return a_activeEffect->effect && a_activeEffect->spell && a_activeEffect->effect->baseEffect->data.castingType != RE::MagicSystem::CastingType::kConstantEffect && a_activeEffect->conditionStatus.get() != RE::ActiveEffect::ConditionStatus::kFalse;
-}
-
-float ActiveEffectHandler::CalculateAVEffectPoiseDamage([[maybe_unused]] RE::ActiveEffect* a_activeEffect, RE::ActorValue a_actorValue)
-{
-	auto settings = Settings::GetSingleton();
-
-	float poiseDamage;
-
-	std::string sEffectType = a_activeEffect->effect->baseEffect->IsDetrimental() ? "Damage" : "Recovery";
+	auto        settings = Settings::GetSingleton();
+	std::string sEffectType = a_detrimental ? "Damage" : "Recovery";
 	std::string baseAVString = std::string(magic_enum::enum_name(a_actorValue).substr(1)).c_str();
 	auto        actorValue = settings->JSONSettings["Magic Effects"]["Actor Values"][sEffectType][baseAVString];
-	if (actorValue != nullptr)
-		poiseDamage = static_cast<float>(actorValue);
-	else
-		return 0.0f;
-
-	std::string resistAVString = std::string(magic_enum::enum_name(a_activeEffect->effect->baseEffect->data.resistVariable).substr(1)).c_str();
-	auto        resistValue = settings->JSONSettings["Magic Effects"]["Resist Values"][resistAVString];
-	if (resistValue != nullptr) {
-		poiseDamage *= static_cast<float>(resistValue);
-	}
-
-	return poiseDamage;
+	return actorValue != nullptr ? static_cast<float>(actorValue) : 0.0f;
 }
 
-void ActiveEffectHandler::ActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta)
+void ActiveEffectHandler::ProcessValueModifier(RE::Actor* a_target, RE::ActorValue a_actorValue, float a_magnitudeDelta, RE::Actor* a_aggressor)
 {
-	auto aggressor = a_activeEffect->GetCasterActor() ? a_activeEffect->GetCasterActor().get() : nullptr;
-	auto target = a_activeEffect->GetTargetActor();
-
 	auto poiseAV = PoiseAV::GetSingleton();
+	auto settings = Settings::GetSingleton();
 
-	if (target && aggressor && poiseAV->CanDamageActor(target) && IsValidEFfect(a_activeEffect)) {
-		float poiseDamage = CalculateAVEffectPoiseDamage(a_activeEffect, a_activeEffect->effect->baseEffect->data.primaryAV);
-		poiseDamage *= -1 * a_activeEffect->magnitude;
+	if (a_target != a_aggressor && poiseAV->CanDamageActor(a_target) && a_magnitudeDelta != 0) {
+		float poiseDamage = CalculateEffectMultiplier(a_actorValue, a_magnitudeDelta > 0) * a_magnitudeDelta;
 
-		float baseMult = 1.0f;
-		PoiseAV::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
-		PoiseAV::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
+		if (a_aggressor) {
+			float baseMult = 1.0f;
+			PoiseAV::ApplyPerkEntryPoint(34, a_aggressor->As<RE::Character>(), a_target->As<RE::Character>(), &baseMult);
+			PoiseAV::ApplyPerkEntryPoint(33, a_target->As<RE::Character>(), a_aggressor->As<RE::Character>(), &baseMult);
+			poiseDamage *= baseMult;
+			if (poiseDamage > 0)
+			{
+				poiseDamage *= settings->GetDamageMultiplier(a_aggressor, a_target);
+				if (a_target != a_aggressor) {
+					if (a_target->IsPlayerRef())
+						poiseDamage *= settings->Damage.ToPCMult;
+					else
+						poiseDamage *= settings->Damage.ToNPCMult;
+				}
+			}
+		}
 
-		poiseAV->DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
+		poiseAV->DamageAndCheckPoise(a_target, a_aggressor, poiseDamage);
 	}
 }
 
-void ActiveEffectHandler::DualActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta)
-{
-	auto aggressor = a_activeEffect->GetCasterActor() ? a_activeEffect->GetCasterActor().get() : nullptr;
-	auto target = a_activeEffect->GetTargetActor();
 
-	auto poiseAV = PoiseAV::GetSingleton();
-
-	if (target && aggressor && poiseAV->CanDamageActor(target) && IsValidEFfect(a_activeEffect)) {
-		float poiseDamage = CalculateAVEffectPoiseDamage(a_activeEffect, a_activeEffect->effect->baseEffect->data.primaryAV);
-		poiseDamage += CalculateAVEffectPoiseDamage(a_activeEffect, a_activeEffect->effect->baseEffect->data.secondaryAV) * (a_activeEffect->effect->baseEffect->data.secondAVWeight);
-		poiseDamage *= -1 * a_activeEffect->magnitude;
-
-		float baseMult = 1.0f;
-		PoiseAV::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
-		PoiseAV::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
-
-		poiseAV->DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
-	}
-}

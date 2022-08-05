@@ -14,37 +14,47 @@ public:
 		Hooks::Install();
 	}
 
-	float CalculateAVEffectPoiseDamage(RE::ActiveEffect* a_activeEffect, RE::ActorValue a_actorValue);
-	void  ActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta);
-	void  DualActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, float a_delta);
+	float CalculateEffectMultiplier(RE::ActorValue a_actorValue, bool a_detrimental);
+	void  ProcessValueModifier(RE::Actor* a_target, RE::ActorValue a_actorValue, float a_magnitudeDelta, RE::Actor* a_caster);
 
 protected:
 	struct Hooks
 	{
-		struct ActiveEffect_Update
+		struct ValueModifier_ModifyActorValue
 		{
-			static void thunk(RE::ActiveEffect* a_activeEffect, float a_delta)
+			static void thunk(RE::Actor* a_target, RE::ACTOR_VALUE_MODIFIER a_actorValueModifier, RE::ActorValue a_actorValue, float a_magnitudeDelta, RE::Actor* a_caster)
 			{
-				func(a_activeEffect, a_delta);
-				GetSingleton()->ActiveEffectUpdate(a_activeEffect, a_delta);
+				func(a_target, a_actorValueModifier, a_actorValue, a_magnitudeDelta, a_caster);
+				GetSingleton()->ProcessValueModifier(a_target, a_actorValue, a_actorValue == RE::ActorValue::kHealth ? -a_magnitudeDelta : a_magnitudeDelta, a_caster);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
-		struct DualActiveEffect_Update
+		struct ValueModifier_DamageHealth
 		{
-			static void thunk(RE::ActiveEffect* a_activeEffect, float a_delta)
+			static void thunk(RE::Actor* a_target, float a_damage, RE::Actor* a_attacker, bool a_useDifficultyModifier)
 			{
-				func(a_activeEffect, a_delta);
-				GetSingleton()->DualActiveEffectUpdate(a_activeEffect, a_delta);
+				func(a_target, a_damage, a_attacker, a_useDifficultyModifier);
+				GetSingleton()->ProcessValueModifier(a_target, RE::ActorValue::kHealth, a_damage, a_attacker);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
+
+		//struct ValueModifier_RestoreActorValue
+		//{
+		//	static void thunk(RE::Actor* a_target, RE::ActorValue a_actorValue, float a_magnitudeDelta)
+		//	{
+		//		func(a_target, a_actorValue, a_magnitudeDelta);
+		//		GetSingleton()->ProcessValueModifier(a_target, a_actorValue, -a_magnitudeDelta, nullptr);
+		//	}
+		//	static inline REL::Relocation<decltype(thunk)> func;
+		//};
 
 		static void Install()
 		{
-			stl::write_vfunc<0x4, ActiveEffect_Update>(RE::VTABLE_ValueModifierEffect[0]);
-			stl::write_vfunc<0x4, DualActiveEffect_Update>(RE::VTABLE_DualValueModifierEffect[0]);
+			stl::write_thunk_call<ValueModifier_ModifyActorValue>(REL::RelocationID(34286, 35086).address() + REL::Relocate(0x2D1, 0x2CC));   // 1.5.97 140567a80
+			stl::write_thunk_call<ValueModifier_DamageHealth>(REL::RelocationID(34286, 35086).address() + REL::Relocate(0x237, 0x232));       // 1.5.97 140567a80
+			//stl::write_thunk_call<ValueModifier_RestoreActorValue>(REL::RelocationID(34286, 35086).address() + REL::Relocate(0x13E, 0x138));  // 1.5.97 140567a80
 		}
 	};
 
