@@ -25,7 +25,7 @@ protected:
 			static void thunk(RE::Actor* a_target, RE::ACTOR_VALUE_MODIFIER a_actorValueModifier, RE::ActorValue a_actorValue, float a_magnitudeDelta, RE::Actor* a_caster)
 			{
 				func(a_target, a_actorValueModifier, a_actorValue, a_magnitudeDelta, a_caster);
-				GetSingleton()->ProcessValueModifier(a_target, a_actorValue, a_actorValue == RE::ActorValue::kHealth ? -a_magnitudeDelta : a_magnitudeDelta, a_caster);
+				GetSingleton()->ProcessValueModifier(a_target, a_actorValue,  -a_magnitudeDelta, a_caster);
 			}
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
