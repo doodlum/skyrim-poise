@@ -26,6 +26,16 @@ float HitEventHandler::GetWeaponDamage(RE::TESObjectWEAP* a_weapon)
 	return a_weapon->weight;
 }
 
+float HitEventHandler::GetUnarmedDamage(RE::Actor* a_actor)
+{
+	auto settings = Settings::GetSingleton();
+
+	auto unarmedDamage = std::lerp(static_cast<float>(settings->JSONSettings["Weapons"]["Damage"]["HandToHandMelee"]), a_actor->GetActorValue(RE::ActorValue::kUnarmedDamage), settings->Damage.UnarmedSkillContribution);
+	auto gauntlet = a_actor->GetWornArmor(RE::BGSBipedObjectForm::BipedObjectSlot::kHands);
+
+	return gauntlet ? std::lerp(unarmedDamage, unarmedDamage + gauntlet->weight, settings->Damage.GauntletWeightContribution) : unarmedDamage;
+}
+
 float HitEventHandler::GetShieldDamage(RE::TESObjectARMO* a_shield)
 {
 	auto settings = Settings::GetSingleton();
@@ -56,12 +66,14 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 			stagger *= 1.0f + aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus);
 		} else
 			logger::debug("Missed attack with sourceRef");
-	} else if (hitData->skill == RE::ActorValue::kUnarmedDamage) {
-		stagger = aggressor->GetActorValue(RE::ActorValue::kUnarmedDamage) * settings->Damage.UnarmedMult;
+	} else if (hitData->weapon) {
+		if (hitData->weapon->As<RE::TESObjectWEAP>()->IsHandToHandMelee()) {
+			stagger = GetUnarmedDamage(aggressor) * settings->Damage.UnarmedMult;
+		} else {
+			stagger = GetWeaponDamage(hitData->weapon) * settings->Damage.MeleeMult;
+		}
 	} else if (hitData->skill == RE::ActorValue::kNone) {
 		stagger = hitData->physicalDamage * settings->Damage.CreatureMult;
-	} else if (hitData->weapon) {
-		stagger = GetWeaponDamage(hitData->weapon) * settings->Damage.MeleeMult;
 	} else if (hitData->skill == RE::ActorValue::kBlock) {
 		auto leftHand = aggressor->GetEquippedObject(true);
 		auto rightHand = aggressor->GetEquippedObject(false);

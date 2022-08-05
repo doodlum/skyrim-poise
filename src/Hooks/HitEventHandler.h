@@ -15,6 +15,7 @@ public:
 	}
 
 	float GetWeaponDamage(RE::TESObjectWEAP* a_weapon);
+	float GetUnarmedDamage(RE::Actor* a_actor);
 	float GetShieldDamage(RE::TESObjectARMO* a_shield);
 	float GetMiscDamage();
 

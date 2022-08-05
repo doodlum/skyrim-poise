@@ -65,6 +65,8 @@ public:
 		float ToNPCMult{ 1 };
 
 		float WeightContribution{ 0.5 };
+		float GauntletWeightContribution{ 0.5 };
+		float UnarmedSkillContribution{ 0.5 };
 	} Damage;
 
 	struct

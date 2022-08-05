@@ -80,6 +80,8 @@ void Settings::LoadINI(const wchar_t* a_path)
 	Damage.ToNPCMult = static_cast<float>(ini.GetDoubleValue("Damage", "ToNPCMult", Damage.ToNPCMult));
 
 	Damage.WeightContribution = static_cast<float>(ini.GetDoubleValue("Damage", "WeightContribution", Damage.WeightContribution));
+	Damage.GauntletWeightContribution = static_cast<float>(ini.GetDoubleValue("Damage", "GauntletWeightContribution", Damage.GauntletWeightContribution));
+	Damage.UnarmedSkillContribution = static_cast<float>(ini.GetDoubleValue("Damage", "UnarmedSkillContribution", Damage.UnarmedSkillContribution));
 
 	TrueHUD.SpecialBar = ini.GetBoolValue("TrueHUD", "SpecialBar", TrueHUD.SpecialBar);
 }
