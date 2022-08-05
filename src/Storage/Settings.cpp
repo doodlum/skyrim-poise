@@ -1,7 +1,7 @@
-#pragma once
+#include "Storage/Settings.h"
 
-#include "Settings.h"
-#include "PoiseAVHUD.h"
+#include "UI/PoiseAVHUD.h"
+
 
 float Settings::GetDamageMultiplier(RE::Actor* a_aggressor, RE::Actor* a_target)
 {

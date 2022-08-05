@@ -1,8 +1,6 @@
 #pragma once
 
-#include "AVInterface.h"
-#include "AVManager.h"
-#include "PCH.h"
+#include "ActorValues/AVInterface.h"
 
 // variables
 //static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();          // 2F6B948, 30064C8
@@ -84,6 +82,13 @@ public:
 		func(a_name);
 	}
 
+	static void ApplyPerkEntryPoint(INT32 entry, RE::Actor* actor_a, RE::Actor* actor_b, float* out)
+	{
+		using func_t = decltype(&ApplyPerkEntryPoint);
+		REL::Relocation<func_t> func{ REL::RelocationID(23073, 23526) };  // 1.5.97 14032ECE0
+		return func(entry, actor_a, actor_b, out);
+	}
+
 protected:
 	struct Hooks
 	{
@@ -107,10 +112,36 @@ protected:
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
+		struct Filter_ApplyPerkEntryPoint_Aggressor
+		{
+			static void thunk(INT32 entry, RE::Actor* target, RE::Actor* aggressor, float& staggerMult)
+			{
+				if (staggerMult > 0) {
+					func(entry, target, aggressor, staggerMult);
+				}
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
+		struct Filter_ApplyPerkEntryPoint_Target
+		{
+			static void thunk(INT32 entry, RE::Actor* target, RE::Actor* aggressor, float& staggerMult)
+			{
+				if (staggerMult > 0.0f) {
+					func(entry, target, aggressor, staggerMult);
+				} else {
+					staggerMult = -staggerMult;
+				}
+			}
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
 		static void Install()
 		{
 			stl::write_vfunc<RE::PlayerCharacter, 0xAD, PlayerCharacter_Update>();
 			stl::write_vfunc<RE::Character, 0xAD, Actor_Update>();
+			stl::write_thunk_call<Filter_ApplyPerkEntryPoint_Aggressor>(REL::RelocationID(36700, 37710).address() + REL::Relocate(0x9A, 0xA1, 0x9A));  // 1.5.97 1405FA1B0
+			stl::write_thunk_call<Filter_ApplyPerkEntryPoint_Target>(REL::RelocationID(36700, 37710).address() + REL::Relocate(0xAE, 0xB9, 0xAE));     // 1.5.97 1405FA1B0
 		}
 	};
 };

@@ -1,9 +1,8 @@
-#include "ActiveEffectHandler.h"
-#include "AVManager.h"
-#include "HitEventHandler.h"
-#include "PoiseAV.h"
-#include "PoiseAVHUD.h"
-#include "Settings.h"
+#include "Hooks/ActiveEffectHandler.h"
+
+#include "Hooks/PoiseAV.h"
+#include "Storage/Settings.h"
+
 
 bool IsValidEFfect(RE::ActiveEffect* a_activeEffect)
 {
@@ -45,8 +44,8 @@ void ActiveEffectHandler::ActiveEffectUpdate(RE::ActiveEffect* a_activeEffect, f
 		poiseDamage *= -1 * a_activeEffect->magnitude;
 
 		float baseMult = 1.0f;
-		HitEventHandler::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
-		HitEventHandler::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
+		PoiseAV::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
+		PoiseAV::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
 
 		poiseAV->DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
 	}
@@ -65,8 +64,8 @@ void ActiveEffectHandler::DualActiveEffectUpdate(RE::ActiveEffect* a_activeEffec
 		poiseDamage *= -1 * a_activeEffect->magnitude;
 
 		float baseMult = 1.0f;
-		HitEventHandler::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
-		HitEventHandler::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
+		PoiseAV::ApplyPerkEntryPoint(34, aggressor->As<RE::Character>(), target->As<RE::Character>(), &baseMult);
+		PoiseAV::ApplyPerkEntryPoint(33, target->As<RE::Character>(), aggressor->As<RE::Character>(), &baseMult);
 
 		poiseAV->DamageAndCheckPoise(target, aggressor, poiseDamage * baseMult * (a_activeEffect->duration > 0.0f ? a_delta : 1.0f));
 	}

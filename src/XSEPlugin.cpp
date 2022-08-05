@@ -1,12 +1,10 @@
-#include "AVManager.h"
-#include "Events.h"
-#include "Hooks.h"
-#include "Serialization.h"
-
-#include "PoiseAV.h"
-#include "PoiseAVHUD.h"
-
-#include "Settings.h"
+#include "ActorValues/AVManager.h"
+#include "Events/Events.h"
+#include "Hooks/Hooks.h"
+#include "Hooks/PoiseAV.h"
+#include "Storage/Serialization.h"
+#include "Storage/Settings.h"
+#include "UI/PoiseAVHUD.h"
 
 static void MessageHandler(SKSE::MessagingInterface::Message* message)
 {

@@ -1,6 +1,9 @@
-#include "PoiseAV.h"
-#include "PoiseAVHUD.h"
-#include "Settings.h"
+#include "Hooks/PoiseAV.h"
+
+#include "ActorValues/AVManager.h"
+#include "Storage/Settings.h"
+#include "UI/PoiseAVHUD.h"
+
 
 bool PoiseAV::CanDamageActor(RE::Actor* a_actor)
 {

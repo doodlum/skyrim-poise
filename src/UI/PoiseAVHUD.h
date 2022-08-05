@@ -1,7 +1,7 @@
 #pragma once
+
 #include "TrueHUDAPI.h"
 
-#include "AVManager.h"
 
 class PoiseAVHUD
 {

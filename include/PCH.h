@@ -15,20 +15,12 @@
 #else
 #	include "RE/Skyrim.h"
 #	include "SKSE/SKSE.h"
-#	if defined(SKYRIMAE)
-#		define RUNTIME 0
-#	elif defined(SKYRIMVR)
-#		define RUNTIME SKSE::RUNTIME_VR_1_4_15_1
-#	else
-#		define RUNTIME SKSE::RUNTIME_1_5_97
-#	endif
 #endif
 
 #define MAGIC_ENUM_RANGE_MAX 256
 #include <magic_enum.hpp>
 
 #include <ShlObj_core.h>
-#include <Windows.h>
 
 #ifdef NDEBUG
 #	include <spdlog/sinks/basic_file_sink.h>

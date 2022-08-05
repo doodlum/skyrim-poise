@@ -1,17 +1,11 @@
-#pragma once
+#include "Storage/Serialization.h"
 
-#include "AVManager.h"
-#include "PoiseAV.h"
+#include "ActorValues/AVManager.h"
+
 
 namespace Serialization
 {
-	enum : std::uint32_t
-	{
-		kSerializationVersion = 1,
-		kUniqueID = 'pAV'
-	};
-
-	inline void SaveCallback(SKSE::SerializationInterface* a_intfc)
+	void SaveCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		auto avManager = AVManager::GetSingleton();
 
@@ -24,7 +18,7 @@ namespace Serialization
 		avManager->mtx.unlock();
 	}
 
-	inline void LoadCallback(SKSE::SerializationInterface* a_intfc)
+	void LoadCallback(SKSE::SerializationInterface* a_intfc)
 	{
 		auto avManager = AVManager::GetSingleton();
 		avManager->mtx.lock();
@@ -54,7 +48,7 @@ namespace Serialization
 		avManager->mtx.unlock();
 	}
 
-	inline bool Save(SKSE::SerializationInterface* a_intfc, json& root)
+	bool Save(SKSE::SerializationInterface* a_intfc, json& root)
 	{
 		std::string elem = root.dump();
 		std::size_t size = elem.length();
@@ -72,7 +66,7 @@ namespace Serialization
 		return true;
 	}
 
-	inline bool Load(SKSE::SerializationInterface* a_intfc, json& parsedJson)
+	bool Load(SKSE::SerializationInterface* a_intfc, json& parsedJson)
 	{
 		std::size_t size;
 		if (!a_intfc->ReadRecordData(size)) {
@@ -113,7 +107,7 @@ namespace Serialization
 		return true;
 	}
 
-	inline void RevertCallback(SKSE::SerializationInterface*)
+	void RevertCallback(SKSE::SerializationInterface*)
 	{
 		auto avManager = AVManager::GetSingleton();
 		avManager->Revert();

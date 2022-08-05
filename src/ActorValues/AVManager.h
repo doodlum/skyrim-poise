@@ -2,10 +2,11 @@
 
 #include "AVInterface.h"
 
+#include <shared_mutex>
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include <shared_mutex>
 
 class AVManager : public RE::BSTEventSink<RE::TESFormDeleteEvent>
 {

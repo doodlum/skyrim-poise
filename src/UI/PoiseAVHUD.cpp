@@ -1,4 +1,7 @@
-#include "PoiseAVHUD.h"
+#include "UI/PoiseAVHUD.h"
+
+#include <ActorValues/AVManager.h>
+
 
 float PoiseAVHUD::GetMaxSpecial(RE::Actor* a_actor)
 {

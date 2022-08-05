@@ -1,8 +1,8 @@
-#include "HitEventHandler.h"
-#include "AVManager.h"
-#include "PoiseAV.h"
-#include "PoiseAVHUD.h"
-#include "Settings.h"
+#include "Hooks/HitEventHandler.h"
+
+#include "Hooks/PoiseAV.h"
+#include "Storage/Settings.h"
+
 
 float HitEventHandler::GetWeaponDamage(RE::TESObjectWEAP* a_weapon)
 {
@@ -86,8 +86,8 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 	float baseMult = 1.0f - hitData->percentBlocked;
 	logger::debug(FMT_STRING("Percent Blocked {}"), hitData->percentBlocked);
 
-	ApplyPerkEntryPoint(34, aggressor, target, &baseMult);
-	ApplyPerkEntryPoint(33, target, aggressor, &baseMult);
+	PoiseAV::ApplyPerkEntryPoint(34, aggressor, target, &baseMult);
+	PoiseAV::ApplyPerkEntryPoint(33, target, aggressor, &baseMult);
 
 	return stagger * baseMult;
 }

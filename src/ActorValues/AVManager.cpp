@@ -1,7 +1,7 @@
-#pragma once
+#include "ActorValues/AVManager.h"
 
-#include "AVManager.h"
-#include "Serialization.h"
+#include "Storage/Serialization.h"
+
 
 bool AVManager::SerializeSave(SKSE::SerializationInterface* a_intfc)
 {
