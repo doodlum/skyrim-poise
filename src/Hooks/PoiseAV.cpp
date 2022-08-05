@@ -33,7 +33,7 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
 	health += a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kDamageResist) * Settings::GetSingleton()->Health.ResistMult;
 
-	return health;
+	return std::clamp(health, 0.0f, FLT_MAX);
 }
 
 float PoiseAV::GetActorValueMax([[maybe_unused]] RE::Actor* a_actor)
