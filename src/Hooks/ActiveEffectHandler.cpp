@@ -17,7 +17,7 @@ void ActiveEffectHandler::ProcessValueModifier(RE::Actor* a_target, RE::ActorVal
 	auto poiseAV = PoiseAV::GetSingleton();
 	auto settings = Settings::GetSingleton();
 
-	if (a_target != a_aggressor && poiseAV->CanDamageActor(a_target) && a_magnitudeDelta != 0) {
+	if (a_target != a_aggressor && (a_aggressor || a_magnitudeDelta < 0) && poiseAV->CanDamageActor(a_target) && a_magnitudeDelta != 0) {
 		float poiseDamage = CalculateEffectMultiplier(a_actorValue, a_magnitudeDelta > 0) * a_magnitudeDelta;
 
 		if (a_aggressor) {
