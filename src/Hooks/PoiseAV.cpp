@@ -21,9 +21,9 @@ bool PoiseAV::CanDamageActor(RE::Actor* a_actor)
 float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 {
 	auto        settings = Settings::GetSingleton();
-	float       health;
 	std::string editorID = a_actor->GetRace()->GetFormEditorID();
 
+	float health;
 	if (!editorID.empty() && (settings->JSONSettings["Races"][editorID] != nullptr))
 		health = (float)settings->JSONSettings["Races"][editorID];
 	else
@@ -31,6 +31,7 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 
 	health *= settings->Health.BaseMult;
 	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
+	health += a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kDamageResist) * Settings::GetSingleton()->Health.ResistMult;
 
 	return health;
 }
