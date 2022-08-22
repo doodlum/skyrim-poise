@@ -8,13 +8,13 @@
   "Magic Effects": {
     "Actor Values": {
       "Damage": {
-        "Health": 0.5,
-        "Magicka": 0.5,
+        "Health": 0.2,
+        "Magicka": 0.2,
         "Mass": 1.0
       },
       "Recovery": {
-        "Health": 0.5,
-        "Magicka": 0.5,
+        "Health": 0.2,
+        "Magicka": 0.2,
         "Mass": 1.0
       }
     }
