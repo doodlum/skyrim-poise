@@ -29,7 +29,7 @@ namespace Serialization
 		bool     loaded = false;
 		while (a_intfc->GetNextRecordInfo(type, version, length)) {
 			if (version != Serialization::kSerializationVersion) {
-				logger::error("Loaded data is out of date! Read (%u), expected (%u) for type code (%s)", version, Serialization::kSerializationVersion, type);
+				logger::error("Loaded data is out of date!");
 				continue;
 			}
 
