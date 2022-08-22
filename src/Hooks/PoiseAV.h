@@ -2,6 +2,8 @@
 
 #include "ActorValues/AVInterface.h"
 
+#include "FormUtil.h"
+
 //static float* g_deltaTime = (float*)RELOCATION_ID(523660, 410199).address();          // 2F6B948, 30064C8
 //static float* g_deltaTimeRealTime = (float*)RELOCATION_ID(523661, 410200).address();  // 2F6B94C, 30064CC
 
@@ -55,6 +57,8 @@ public:
 	void RetrieveFullBodyStaggerFaction()
 	{
 		ForceFullBodyStagger = RE::TESForm::LookupByID(0x10CED7)->As<RE::TESFaction>();
+		if (!ForceFullBodyStagger)
+			ForceFullBodyStagger = FormUtil::LookupByIdentifier<RE::TESFaction>("ChocolatePoise - Enderal.esp|0x800");
 	}
 
 	bool            appliedStagger = false;
