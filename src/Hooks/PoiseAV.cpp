@@ -1,6 +1,7 @@
 #include "Hooks/PoiseAV.h"
 
 #include "ActorValues/AVManager.h"
+#include "Storage/ActorCache.h"
 #include "Storage/Settings.h"
 #include "UI/PoiseAVHUD.h"
 
@@ -30,7 +31,8 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 		health = a_actor->GetBaseActorValue(RE::ActorValue::kMass);
 
 	health *= settings->Health.BaseMult;
-	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
+//	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
+	health += ActorCache::GetSingleton()->GetOrCreateCachedWeight(a_actor) * Settings::GetSingleton()->Health.ArmorMult;
 	health += a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kDamageResist) * Settings::GetSingleton()->Health.ResistMult;
 
 	return std::clamp(health, 0.0f, FLT_MAX);

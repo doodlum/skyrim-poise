@@ -2,6 +2,7 @@
 #include "Events/Events.h"
 #include "Hooks/Hooks.h"
 #include "Hooks/PoiseAV.h"
+#include "Storage/ActorCache.h"
 #include "Storage/Serialization.h"
 #include "Storage/Settings.h"
 #include "UI/PoiseAVHUD.h"
@@ -13,6 +14,8 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 		{
 			auto poiseAV = PoiseAV::GetSingleton();
 			poiseAV->RetrieveFullBodyStaggerFaction();
+			auto settings = Settings::GetSingleton();
+			settings->LoadSettings();
 			break;
 		}
 	case SKSE::MessagingInterface::kPostLoad:
@@ -30,12 +33,14 @@ static void MessageHandler(SKSE::MessagingInterface::Message* message)
 		{
 			auto settings = Settings::GetSingleton();
 			settings->LoadSettings();
+			ActorCache::GetSingleton()->Revert();
 			break;
 		}
 	case SKSE::MessagingInterface::kNewGame:
 		{
 			auto settings = Settings::GetSingleton();
 			settings->LoadSettings();
+			ActorCache::GetSingleton()->Revert();
 			break;
 		}
 	default:
@@ -60,6 +65,7 @@ void Init()
 
 	Hooks::Install();
 	Events::Register();
+	ActorCache::RegisterEvents();
 }
 
 void InitializeLog()
