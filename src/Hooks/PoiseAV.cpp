@@ -5,7 +5,6 @@
 #include "Storage/Settings.h"
 #include "UI/PoiseAVHUD.h"
 
-
 bool PoiseAV::CanDamageActor(RE::Actor* a_actor)
 {
 	if (a_actor && a_actor->currentProcess && !a_actor->IsChild()) {
@@ -31,7 +30,6 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 		health = a_actor->GetBaseActorValue(RE::ActorValue::kMass);
 
 	health *= settings->Health.BaseMult;
-//	health += a_actor->equippedWeight * Settings::GetSingleton()->Health.ArmorMult;
 	health += ActorCache::GetSingleton()->GetOrCreateCachedWeight(a_actor) * Settings::GetSingleton()->Health.ArmorMult;
 	health += a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kDamageResist) * Settings::GetSingleton()->Health.ResistMult;
 
@@ -45,9 +43,9 @@ float PoiseAV::GetActorValueMax([[maybe_unused]] RE::Actor* a_actor)
 
 void PoiseAV::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, float a_poiseDamage)
 {
-	auto settings = Settings::GetSingleton();
-	auto avManager = AVManager::GetSingleton();
-	avManager->mtx.lock();
+	auto                               settings = Settings::GetSingleton();
+	auto                               avManager = AVManager::GetSingleton();
+	std::lock_guard<std::shared_mutex> lk(avManager->mtx);
 
 	if (a_poiseDamage > 0 && a_target != a_aggressor) {
 		a_poiseDamage *= settings->GetDamageMultiplier(a_aggressor, a_target);
@@ -69,43 +67,42 @@ void PoiseAV::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, f
 		TryStagger(a_target, poiseDamagePercent, a_aggressor);
 	}
 	logger::debug(FMT_STRING("Target {} Poise Damage {} Poise Health {} / {}"), a_target->GetName(), a_poiseDamage, avManager->GetActorValue(g_avName, a_target), avManager->GetActorValueMax(g_avName, a_target));
-
-	avManager->mtx.unlock();
 }
 
 void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 {
-	auto settings = Settings::GetSingleton();
-	auto avManager = AVManager::GetSingleton();
+	if (a_actor->currentProcess && a_actor->currentProcess->InHighProcess() && a_actor->Is3DLoaded()) {
+		auto settings = Settings::GetSingleton();
 
-	if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
-		if (!CanDamageActor(a_actor))
-			PoiseAVHUD::trueHUDInterface->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
-		else
-			PoiseAVHUD::trueHUDInterface->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
-	}
-
-	avManager->mtx.lock();
-	if (avManager->GetActorValue(g_avName, a_actor) == 0.0f) {
-		if (a_actor->actorState2.staggered) {
-			avManager->RestoreActorValue(g_avName, a_actor, FLT_MAX);
-			if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
-				PoiseAVHUD::trueHUDInterface->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
-			}
-			RemoveFromFaction(a_actor, ForceFullBodyStagger);
-		} else {
-			TryStagger(a_actor, 0.5f, nullptr);
+		if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
+			if (!CanDamageActor(a_actor))
+				PoiseAVHUD::trueHUDInterface->OverrideSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor, 0x808080);
+			else
+				PoiseAVHUD::trueHUDInterface->RevertSpecialBarColor(a_actor->GetHandle(), TRUEHUD_API::BarColorType::BarColor);
 		}
-	} else {
-		avManager->RestoreActorValue(g_avName, a_actor, avManager->GetActorValueMax(g_avName, a_actor) * settings->Health.RegenRate * a_delta);
+
+		auto                               avManager = AVManager::GetSingleton();
+		std::lock_guard<std::shared_mutex> lk(avManager->mtx);
+		if (avManager->GetActorValue(g_avName, a_actor) == 0.0f) {
+			if (a_actor->actorState2.staggered) {
+				avManager->RestoreActorValue(g_avName, a_actor, FLT_MAX);
+				if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
+					PoiseAVHUD::trueHUDInterface->FlashActorSpecialBar(SKSE::GetPluginHandle(), a_actor->GetHandle(), true);
+				}
+				RemoveFromFaction(a_actor, ForceFullBodyStagger);
+			} else {
+				TryStagger(a_actor, 0.5f, nullptr);
+			}
+		} else {
+			avManager->RestoreActorValue(g_avName, a_actor, avManager->GetActorValueMax(g_avName, a_actor) * settings->Health.RegenRate * a_delta);
+		}
 	}
-	avManager->mtx.unlock();
 }
 
 void PoiseAV::GarbageCollection()
 {
-	auto avManager = AVManager::GetSingleton();
-	avManager->mtx.lock();
+	auto                               avManager = AVManager::GetSingleton();
+	std::lock_guard<std::shared_mutex> lk(avManager->mtx);
 
 	json temporaryJson = avManager->avStorage;
 	for (auto& el : avManager->avStorage.items()) {
@@ -113,7 +110,7 @@ void PoiseAV::GarbageCollection()
 		try {
 			if (auto form = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))) {
 				if (auto actor = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))->As<RE::Actor>()) {
-					if (actor->currentProcess && actor->currentProcess->InHighProcess())
+					if (actor->currentProcess && actor->currentProcess->InHighProcess() && actor->Is3DLoaded())
 						continue;
 				}
 			}
@@ -125,6 +122,4 @@ void PoiseAV::GarbageCollection()
 		}
 	}
 	avManager->avStorage = temporaryJson;
-
-	avManager->mtx.unlock();
 }
