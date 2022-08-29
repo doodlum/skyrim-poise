@@ -70,7 +70,7 @@ void ActorCache::EquipEvent(const RE::TESEquipEvent* a_event)
 						weight = weapon->GetWeight();
 						valid = true;
 					}
-					if (weight) {
+					if (valid) {
 						if (formCache.contains(actor->formID)) {
 							ActorData& data = formCache.at(actor->formID);
 							data.trueWeightValue += a_event->equipped ? weight : -weight;
