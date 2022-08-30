@@ -31,7 +31,20 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 
 	health *= settings->Health.BaseMult;
 	health += ActorCache::GetSingleton()->GetOrCreateCachedWeight(a_actor) * Settings::GetSingleton()->Health.ArmorMult;
-	health += a_actor->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kTemporary, RE::ActorValue::kDamageResist) * Settings::GetSingleton()->Health.ResistMult;
+	health *= 1 + log10(a_actor->GetActorValue(RE::ActorValue::kDamageResist) / settings->Health.ResistSlope + 1);
+
+	//if (auto levelledModifier = (RE::ExtraLevCreaModifier*)a_actor->extraList.GetByType(RE::ExtraDataType::kLevCreaModifier)) {
+	//	auto modifier = levelledModifier->modifier;
+	//	if (modifier.any(RE::LEV_CREA_MODIFIER::kEasy)) {
+	//		health *= 0.75;
+	//	} else if (modifier.any(RE::LEV_CREA_MODIFIER::kMedium)) {
+	//		health *= 1.00;
+	//	} else if (modifier.any(RE::LEV_CREA_MODIFIER::kHard)) {
+	//		health *= 1.25;
+	//	} else if (modifier.any(RE::LEV_CREA_MODIFIER::kVeryHard)) {
+	//		health *= 1.50;
+	//	}
+	//}
 
 	return std::clamp(health, 0.0f, FLT_MAX);
 }

@@ -49,7 +49,7 @@ public:
 	{
 		float BaseMult{ 20 };
 		float ArmorMult{ 0.5 };
-		float ResistMult{ 0.5f };
+		float ResistSlope{ 100.0f };
 		float RegenRate{ 0.333f };
 	} Health;
 
