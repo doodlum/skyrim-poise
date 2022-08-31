@@ -31,7 +31,6 @@ float PoiseAV::GetBaseActorValue(RE::Actor* a_actor)
 
 	health *= settings->Health.BaseMult;
 	health += ActorCache::GetSingleton()->GetOrCreateCachedWeight(a_actor) * Settings::GetSingleton()->Health.ArmorMult;
-	health *= 1 + log10(a_actor->GetActorValue(RE::ActorValue::kDamageResist) / settings->Health.ResistSlope + 1);
 
 	//if (auto levelledModifier = (RE::ExtraLevCreaModifier*)a_actor->extraList.GetByType(RE::ExtraDataType::kLevCreaModifier)) {
 	//	auto modifier = levelledModifier->modifier;

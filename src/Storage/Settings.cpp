@@ -66,7 +66,6 @@ void Settings::LoadINI(const wchar_t* a_path)
 
 	Health.BaseMult = static_cast<float>(ini.GetDoubleValue("Health", "BaseMult", Health.BaseMult));
 	Health.ArmorMult = static_cast<float>(ini.GetDoubleValue("Health", "ArmorMult", Health.ArmorMult));
-	Health.ResistSlope = static_cast<float>(ini.GetDoubleValue("Health", "ResistSlope", Health.ResistSlope));
 	Health.RegenRate = static_cast<float>(ini.GetDoubleValue("Health", "RegenRate", Health.RegenRate));
 
 	Damage.BashMult = static_cast<float>(ini.GetDoubleValue("Damage", "BashMult", Damage.BashMult));

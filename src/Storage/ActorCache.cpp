@@ -74,8 +74,8 @@ void ActorCache::EquipEvent(const RE::TESEquipEvent* a_event)
 						if (formCache.contains(actor->formID)) {
 							ActorData& data = formCache.at(actor->formID);
 							data.trueWeightValue += a_event->equipped ? weight : -weight;
-							logger::debug("{} {} weight ", a_event->equipped ? "Added" : "Removed", weight);
-							logger::debug("True weight is {} vanilla weight is {}", data.trueWeightValue, actor->equippedWeight);
+							//logger::debug("{} {} weight ", a_event->equipped ? "Added" : "Removed", weight);
+							//logger::debug("True weight is {} vanilla weight is {}", data.trueWeightValue, actor->equippedWeight);
 						}
 					}
 				}
@@ -97,7 +97,7 @@ float ActorCache::CalculateEquippedWeight(RE::Actor* a_actor)
 		if ((slotsChecked & thisSlot) != thisSlot) {
 			if (auto thisArmor = a_actor->GetWornArmor((BipedObjectSlot)thisSlot)) {
 				equippedWeight += thisArmor->GetWeight();
-				logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), thisArmor->GetName(), thisArmor->GetWeight());
+				//logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), thisArmor->GetName(), thisArmor->GetWeight());
 				slotsChecked += (int)thisArmor->GetSlotMask();
 			} else {
 				slotsChecked += thisSlot;
@@ -108,13 +108,13 @@ float ActorCache::CalculateEquippedWeight(RE::Actor* a_actor)
 	if (auto rightHand = a_actor->GetEquippedObject(false)) {
 		if (auto weapon = rightHand->As<RE::TESObjectWEAP>()) {
 			equippedWeight += weapon->GetWeight();
-			logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), weapon->GetName(), weapon->GetWeight());
+			//logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), weapon->GetName(), weapon->GetWeight());
 		}
 	}
 	if (auto leftHand = a_actor->GetEquippedObject(true)) {
 		if (auto weapon = leftHand->As<RE::TESObjectWEAP>()) {
 			equippedWeight += weapon->GetWeight();
-			logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), weapon->GetName(), weapon->GetWeight());
+			//logger::debug("Actor {} Object {} Weight {}", a_actor->GetName(), weapon->GetName(), weapon->GetWeight());
 		}
 	}
 	return equippedWeight;
@@ -135,7 +135,7 @@ float ActorCache::GetOrCreateCachedWeight(RE::Actor* a_actor)
 	if (!formCache.contains(a_actor->formID)) {
 		ActorData data;
 		data.trueWeightValue = CalculateEquippedWeight(a_actor);
-		logger::debug("True weight is {} vanilla weight is {}", data.trueWeightValue, a_actor->equippedWeight);
+		//logger::debug("True weight is {} vanilla weight is {}", data.trueWeightValue, a_actor->equippedWeight);
 		formCache.insert({ a_actor->formID, data });
 		return data.trueWeightValue;
 	}

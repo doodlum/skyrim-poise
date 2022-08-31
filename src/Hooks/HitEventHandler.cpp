@@ -91,8 +91,8 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 
 	auto attackData = hitData->attackData ? hitData->attackData.get() : nullptr;
 	if (attackData) {
-		stagger *= attackData->data.damageMult;
-		logger::debug(FMT_STRING("Damage Mult {}"), attackData->data.damageMult);
+		stagger *= 1 + attackData->data.staggerOffset;
+		logger::debug(FMT_STRING("Stagger Mult {}"), 1 * attackData->data.staggerOffset);
 	}
 
 	float baseMult = 1.0f - hitData->percentBlocked;
@@ -101,7 +101,12 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 	PoiseAV::ApplyPerkEntryPoint(34, aggressor, target, &baseMult);
 	PoiseAV::ApplyPerkEntryPoint(33, target, aggressor, &baseMult);
 
-	return stagger * baseMult;
+	stagger *= baseMult;
+	if (hitData->totalDamage && hitData->physicalDamage)
+	stagger *= hitData->totalDamage / hitData->physicalDamage;
+	stagger = stagger * min(1 - (target->armorRating * 0.12f + target->armorBaseFactorSum) / 100.0f, 0.8f); 
+
+	return stagger;
 }
 
 void HitEventHandler::PreProcessHit(RE::Actor* target, RE::HitData* hitData)
