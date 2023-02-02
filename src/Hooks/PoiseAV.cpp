@@ -59,8 +59,8 @@ void PoiseAV::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, f
 	auto                               avManager = AVManager::GetSingleton();
 	std::lock_guard<std::shared_mutex> lk(avManager->mtx);
 
-//	if (a_poiseDamage > 0 && a_target != a_aggressor) {
-//		a_poiseDamage *= settings->GetDamageMultiplier(a_aggressor, a_target);
+	if (a_poiseDamage > 0 && a_target != a_aggressor) {
+	a_poiseDamage *= settings->GetDamageMultiplier(a_aggressor, a_target);
 		if (a_target != a_aggressor) {
 			if (a_target->IsPlayerRef())
 				a_poiseDamage *= settings->Damage.ToPCMult;
