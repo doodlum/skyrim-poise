@@ -7,7 +7,7 @@
 
 bool PoiseAV::CanDamageActor(RE::Actor* a_actor)
 {
-	if (a_actor && a_actor->currentProcess && !a_actor->IsChild()) {
+	if (a_actor && a_actor->GetActorRuntimeData().currentProcess && !a_actor->IsChild()) {
 		switch (Settings::GetSingleton()->Modes.StaggerMode) {
 		case 0:
 			return true;
@@ -83,7 +83,8 @@ void PoiseAV::DamageAndCheckPoise(RE::Actor* a_target, RE::Actor* a_aggressor, f
 
 void PoiseAV::Update(RE::Actor* a_actor, [[maybe_unused]] float a_delta)
 {
-	if (a_actor->currentProcess && a_actor->currentProcess->InHighProcess() && a_actor->Is3DLoaded()) {
+	auto currentProcess = a_actor->GetActorRuntimeData().currentProcess;
+	if (currentProcess && currentProcess->InHighProcess() && a_actor->Is3DLoaded()) {
 		auto settings = Settings::GetSingleton();
 
 		if (PoiseAVHUD::trueHUDInterface && settings->TrueHUD.SpecialBar) {
@@ -122,7 +123,8 @@ void PoiseAV::GarbageCollection()
 		try {
 			if (auto form = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))) {
 				if (auto actor = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(sformID)))->As<RE::Actor>()) {
-					if (actor->currentProcess && actor->currentProcess->InHighProcess() && actor->Is3DLoaded())
+					auto currentProcess = actor->GetActorRuntimeData().currentProcess;
+					if (currentProcess && currentProcess->InHighProcess() && actor->Is3DLoaded())
 						continue;
 				}
 			}

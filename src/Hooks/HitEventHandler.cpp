@@ -61,8 +61,10 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 
 	auto sourceRef = hitData->sourceRef.get().get();
 	if (sourceRef) {
-		if (sourceRef->AsProjectile() && sourceRef->AsProjectile()->ammoSource && sourceRef->AsProjectile()->weaponSource) {
-			stagger = GetWeaponDamage(sourceRef->AsProjectile()->weaponSource) * settings->Damage.BowMult;
+		auto projectile = sourceRef->AsProjectile();
+		auto projectileData = projectile ? std::addressof(projectile->GetProjectileRuntimeData()) : nullptr;
+		if (projectileData && projectileData->ammoSource && projectileData->weaponSource) {
+			stagger = GetWeaponDamage(projectileData->weaponSource) * settings->Damage.BowMult;
 			stagger *= 1.0f + aggressor->GetActorValue(RE::ActorValue::kBowStaggerBonus);
 		} else
 			logger::debug("Missed attack with sourceRef");
@@ -104,7 +106,8 @@ float HitEventHandler::RecalculateStagger(RE::Actor* target, RE::Actor* aggresso
 	stagger *= baseMult;
 	if (hitData->totalDamage && hitData->physicalDamage)
 	stagger *= hitData->totalDamage / hitData->physicalDamage;
-	stagger = stagger * min(1 - (target->armorRating * 0.12f + target->armorBaseFactorSum) / 100.0f, 0.8f); 
+	auto& targetRuntimeData = target->GetActorRuntimeData();
+	stagger = stagger * min(1 - (targetRuntimeData.armorRating * 0.12f + targetRuntimeData.armorBaseFactorSum) / 100.0f, 0.8f);
 
 	return stagger;
 }
